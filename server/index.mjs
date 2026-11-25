@@ -1,5 +1,6 @@
 // Wheelhouse local server: owns the PTYs (they outlive browser reloads),
 // receives Claude Code hook events for console status, persists board state.
+import { cleanEnv } from './childenv.mjs'
 import http from 'node:http'
 import net from 'node:net'
 import fs from 'node:fs'
@@ -56,8 +57,7 @@ fs.mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 })
 // (child-session marker, session id, messaging token) must not leak into the consoles:
 // a Claude that thinks it is a child session stops saving transcripts, which breaks resume.
 // The desktop app runs this server through its own Electron: tools started in a console must not inherit that.
-const STRIP_ENV = /^(CLAUDECODE$|CLAUDE_CODE_|CLAUDE_JOB_DIR$|CLAUDE_PID$|ELECTRON_RUN_AS_NODE$)/
-const CLEAN_ENV = Object.fromEntries(Object.entries(process.env).filter(([k]) => !STRIP_ENV.test(k)))
+const CLEAN_ENV = cleanEnv(process.env)
 
 // Claude Code gets these hooks through --settings, so the user's global config stays untouched.
 const hook = (event) => ({

@@ -2,22 +2,23 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/logo/dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="docs/logo/light.svg">
-    <img alt="vibeboard" src="docs/logo/light.svg" width="320">
+    <img alt="The vibeboard logo, kept from upstream" src="docs/logo/light.svg" width="320">
   </picture>
 </p>
 
+<h1 align="center">Wheelhouse</h1>
+
 <p align="center">
-  <a href="https://github.com/ricca200xx/vibeboard/releases/latest"><img src="https://img.shields.io/github/v/release/ricca200xx/vibeboard?style=flat&label=release" alt="Latest release"></a>
-  <a href="https://github.com/ricca200xx/vibeboard/releases"><img src="https://img.shields.io/github/downloads/ricca200xx/vibeboard/total?style=flat" alt="Downloads"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="#download"><img src="https://img.shields.io/badge/macOS-13%2B-000000?logo=apple&logoColor=white" alt="macOS 13 or later"></a>
+  <a href="#install-from-source"><img src="https://img.shields.io/badge/macOS-13%2B-000000?logo=apple&logoColor=white" alt="macOS 13 or later"></a>
   <a href="#build-from-source"><img src="https://img.shields.io/badge/node-%3E%3D24-brightgreen" alt="Node.js 24 or later"></a>
 </p>
 
 <p align="center"><b>All your coding agents on one board. Real terminals, side by side.</b></p>
 
+Wheelhouse is a fork of [vibeboard](https://github.com/ricca200xx/vibeboard) by Riccardo Niccolò Agosti, under the MIT licence.
+
 <p align="center">
-  <a href="#download">Download</a> |
   <a href="#quick-start">Quick start</a> |
   <a href="#templates">Templates</a> |
   <a href="#what-you-can-do">Features</a> |
@@ -30,13 +31,7 @@
   <img src="docs/media/orchestration.gif" alt="A plan, build and review team on the vibeboard canvas: the planner writes a plan, hands it to the builder, which asks before editing a file, then hands its work to the reviewer" width="860">
 </p>
 
-<p align="center">
-  <b>Download the Mac app:</b>
-  <a href="https://github.com/ricca200xx/vibeboard/releases/latest/download/vibeboard-mac-arm64.dmg">Apple silicon</a> ·
-  <a href="https://github.com/ricca200xx/vibeboard/releases/latest/download/vibeboard-mac-x64.dmg">Intel</a>
-</p>
-
-vibeboard is an open-source Mac app that puts the coding agents you already use, such as Claude Code,
+Wheelhouse is an open-source Mac app that puts the coding agents you already use, such as Claude Code,
 Codex, Gemini CLI, Cursor and more, on one infinite canvas. Every console is a real terminal running
 the real CLI, with your own sign-in and your own shell. Agents can be grouped into teams and hand their
 work to one another. You can see what each one is doing and how full its memory is.
@@ -46,24 +41,25 @@ something. The real terminal keeps running underneath, one click away.
 
 ## Quick Start
 
-### Install the app
+### Install from source
 
-1. Download the disk image for your Mac:
-   - **[Apple silicon](https://github.com/ricca200xx/vibeboard/releases/latest/download/vibeboard-mac-arm64.dmg)** (M1 and later);
-   - **[Intel](https://github.com/ricca200xx/vibeboard/releases/latest/download/vibeboard-mac-x64.dmg)**.
+There are no Wheelhouse releases or disk images yet: you build the app from the source. You need
+Node.js 24 or later.
 
-   Not sure which? Apple menu › **About This Mac**: **Chip: Apple M…** means Apple silicon,
-   **Processor: Intel** means Intel.
-2. Open the `.dmg` and drag **vibeboard** into **Applications**.
-3. The first time you open it, macOS says it cannot check the app, because vibeboard is not yet signed
-   with a paid Apple Developer ID. Press **Done**. Then open **System Settings › Privacy & Security**,
-   scroll down and press **Open Anyway**. You only do this once.
+```bash
+git clone https://github.com/Carlsmeister/wheelhouse.git
+cd wheelhouse
+npm install
+npm run desktop    # the Mac app, from the source
+```
+
+See [Build from source](#build-from-source) for everything else.
 
 **You need** macOS 13 Ventura or later and at least one agent CLI, for example
-[Claude Code](https://docs.anthropic.com/en/docs/claude-code). If vibeboard finds none, it offers to set
+[Claude Code](https://docs.anthropic.com/en/docs/claude-code). If Wheelhouse finds none, it offers to set
 up Claude Code: it types the install command into a terminal and you press Return to run it.
 
-**To update**, replace the app in Applications with the new one. Your boards are kept.
+**To update**, pull the latest source and run `npm install` again. Your boards are kept.
 
 ### Your first team
 
@@ -78,17 +74,6 @@ up Claude Code: it types the install command into a terminal and you press Retur
 
 > Try: *"Add a `shout(name)` function to src/greet.js that returns the greeting in capitals."*
 > The planner writes three steps, the builder asks before editing the file, and the reviewer checks the result.
-
-### From the source
-
-```bash
-git clone https://github.com/ricca200xx/vibeboard.git
-cd vibeboard
-npm install
-npm run desktop    # the Mac app, from the source
-```
-
-See [Build from source](#build-from-source) for everything else.
 
 ## Templates
 
@@ -199,14 +184,14 @@ every member runs your default agent, and its role travels with each hand-off it
 
 ## How It Works
 
-- The app starts a small server on `127.0.0.1:4317` and shows the board in a window. Nothing else on
+- The app starts a small server on `127.0.0.1:4318` and shows the board in a window. Nothing else on
   your network can reach it.
 - Every console is a real pseudo-terminal running your agent CLI through your login shell.
   - Consoles keep running while you switch workspaces.
   - They reattach with their scrollback.
   - A console that floods the output is paused until the screen catches up.
 - **Claude Code:**
-  - vibeboard adds its status hooks with `--settings` for each session;
+  - Wheelhouse adds its status hooks with `--settings` for each session;
   - it reads Claude's own transcript for the conversation, the steps and the context gauge;
   - your global Claude configuration is never changed.
 - **Other agents** are followed by their output.
@@ -216,13 +201,13 @@ every member runs your default agent, and its role travels with each hand-off it
 - **Hand-offs:**
   - the next agent gets a short summary of the first one's work;
   - its final reply goes along word for word.
-- **Your data:** boards live in `~/.vibeboard/`. No account, no cloud, no telemetry.
+- **Your data:** boards live in `~/.wheelhouse/`. No account, no cloud, no telemetry.
 
 ## Supported Agents
 
 Claude Code · Codex · Gemini CLI · Aider · Cursor CLI · Qwen Code · OpenCode · Grok · Amp · Goose ·
 Copilot CLI · Droid · Crush · Kimi CLI · Auggie · Cline · Kilo Code · Codebuff · Continue, and a plain shell.
-vibeboard runs whichever of them are installed and on your `PATH`.
+Wheelhouse runs whichever of them are installed and on your `PATH`.
 
 |                                                  | **Claude Code**       | **Other agents**     |
 | ------------------------------------------------ | --------------------- | -------------------- |
@@ -234,7 +219,7 @@ vibeboard runs whichever of them are installed and on your `PATH`.
 | Resume, lead and helpers                         | yes                   | not yet              |
 | A second account                                 | yes                   | Codex                |
 
-## Why vibeboard?
+## Why Wheelhouse?
 
 <p align="center">
   <img src="docs/media/tmux-vs-board.gif" alt="Six Claude Code agents in tmux: the job typed pane by pane, every permission question hunted down pane by pane. Then the same six agents on vibeboard: started at once, one order for all six, a console resized while they work, every question answered with one click, the mission map" width="860">
@@ -273,36 +258,38 @@ vibeboard runs whichever of them are installed and on your `PATH`.
   microphone, location or notifications.
 - **Agents keep their usual permission prompts.** **Auto-approve** (Claude's `--dangerously-skip-permissions`) is off unless you turn it on.
 - **What leaves your Mac:**
-  - vibeboard itself sends nothing anywhere; the agents talk to their own providers as they always do;
+  - Wheelhouse itself sends nothing anywhere; the agents talk to their own providers as they always do;
   - dictation uses the browser's speech service, which may send audio to its vendor;
   - in the app, use the Mac's own dictation instead: press fn twice.
 
 Found a security problem? Please report it privately through
-[GitHub's security advisories](https://github.com/ricca200xx/vibeboard/security/advisories/new), not in a public issue.
+[GitHub's security advisories](https://github.com/Carlsmeister/wheelhouse/security/advisories/new), not in a public issue.
 
-## Your Data and Removing vibeboard
+## Your Data and Removing Wheelhouse
 
 | What                                      | Where                                       |
 | ----------------------------------------- | ------------------------------------------- |
-| Boards, memories, loops, account profiles | `~/.vibeboard/` (with a backup of the board) |
-| The app's window settings                 | `~/Library/Application Support/vibeboard/`  |
-| Logs                                      | `~/Library/Logs/vibeboard/server.log`       |
+| Boards, memories, loops, account profiles | `~/.wheelhouse/` (with a backup of the board) |
+| The app's window settings                 | `~/Library/Application Support/Wheelhouse/` |
+| Logs                                      | `~/Library/Logs/Wheelhouse/server.log`      |
 
-To remove vibeboard:
+On its first start, Wheelhouse copies your board, its backup and your loops from `~/.vibeboard/`, if
+you have one. It never changes that folder. Account profiles are not copied, so a second account signs in again.
+
+To remove Wheelhouse:
 1. Quit it.
-2. Move it from Applications to the Bin.
+2. Delete the app, or your copy of the source.
 3. Delete the three folders above.
 
 Your projects and your agents' own settings are not touched.
 
 ## Troubleshooting
 
-- **"vibeboard cannot be opened"**: see [Install the app](#install-the-app). This happens once.
 - **An agent shows as "not installed"**:
-  - vibeboard looks for it in your login shell's `PATH`;
+  - Wheelhouse looks for it in your login shell's `PATH`;
   - check that `which claude` (or the agent's command) works in a new Terminal window;
   - then press **Check again**.
-- **"vibeboard could not start"**: another program is using port 4317. A second copy of vibeboard, or
+- **"Wheelhouse could not start"**: another program is using port 4318. A second copy of Wheelhouse, or
   `npm run dev`, is reused on its own. Otherwise, quit that program, or look in the log.
 - **A console says the project's folder is gone**: it was moved or deleted. Open the folder from its new place.
 - **Dictation does nothing in the app**: use the Mac's own dictation (fn twice) in the command bar.
@@ -313,30 +300,30 @@ You need Node.js 24 or later.
 
 ```bash
 npm install
-npm run dev        # server on 127.0.0.1:4317, app on http://localhost:5173
+npm run dev        # server on 127.0.0.1:4318, app on http://localhost:5173
 npm test           # the test suite (it starts its own server in a throwaway folder)
 npm run desktop    # the Mac app, from the source
 npm run dist       # both disk images, in release/
 ```
 
-- `npm run build && npm start` serves the built app on `http://127.0.0.1:4317` in your browser. In a
+- `npm run build && npm start` serves the built app on `http://127.0.0.1:4318` in your browser. In a
   browser, sites such as Google refuse to show inside a web tile; in the Mac app every site loads.
 - A tag such as `v0.2.0` builds both disk images on GitHub Actions and leaves them on a draft release.
 
 ## Community
 
-- Bugs and ideas: [GitHub Issues](https://github.com/ricca200xx/vibeboard/issues)
-- Security reports: [private advisory](https://github.com/ricca200xx/vibeboard/security/advisories/new)
+- Bugs and ideas: [GitHub Issues](https://github.com/Carlsmeister/wheelhouse/issues)
+- Security reports: [private advisory](https://github.com/Carlsmeister/wheelhouse/security/advisories/new)
 - Contributions: pull requests are welcome. Run `npm test` before you open one.
 
 ## Credits
 
 - **Agent marks:** they come from [Lobe Icons](https://github.com/lobehub/lobe-icons) (MIT). They stay
   the trademarks of their owners and only name the tool a console runs; see `src/assets/agents/NOTICE.md`.
-- **Independent project:** vibeboard is inspired by [Symvibe](https://www.symvibe.com/). It is not
+- **Independent project:** Wheelhouse builds on vibeboard, which is inspired by [Symvibe](https://www.symvibe.com/). It is not
   affiliated with or endorsed by Symvibe, Apple, Anthropic or any agent's maker, and it uses no code or
   assets from them.
 
 ## License
 
-[MIT](LICENSE) © 2026 Riccardo Niccolò Agosti
+[MIT](LICENSE) © 2026 Riccardo Niccolò Agosti and Carl Lundholm

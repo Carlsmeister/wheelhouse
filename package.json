@@ -1,5 +1,5 @@
 {
-  "name": "vibeboard",
+  "name": "wheelhouse",
   "private": true,
   "version": "1.0.0",
   "license": "MIT",
@@ -53,8 +53,8 @@
   "author": "Riccardo Niccolò Agosti",
   "main": "desktop/main.cjs",
   "build": {
-    "appId": "io.github.ricca200xx.vibeboard",
-    "productName": "vibeboard",
+    "appId": "io.github.carlsmeister.wheelhouse",
+    "productName": "Wheelhouse",
     "copyright": "Copyright © 2026 Riccardo Niccolò Agosti",
     "directories": {
       "output": "release",
@@ -82,11 +82,11 @@
       "hardenedRuntime": false,
       "gatekeeperAssess": false,
       "extendInfo": {
-        "NSMicrophoneUsageDescription": "vibeboard listens only while you dictate a command."
+        "NSMicrophoneUsageDescription": "Wheelhouse listens only while you dictate a command."
       }
     },
     "dmg": {
-      "title": "vibeboard ${version}"
+      "title": "Wheelhouse ${version}"
     },
     "afterPack": "build/adhoc-sign.cjs"
   }

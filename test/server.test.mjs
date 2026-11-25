@@ -43,7 +43,7 @@ before(async () => {
   // Pretend the server was launched from inside a Claude Code session. Consoles run zsh, the Mac's own
   // shell, whatever shell the tests run from: bash 3.2 (CI) cannot take a pasted multi-line brief.
   const SHELL = fs.existsSync('/bin/zsh') ? '/bin/zsh' : process.env.SHELL
-  const env = { ...process.env, SHELL, PORT: String(PORT), HOME, CLAUDECODE: '1', CLAUDE_CODE_CHILD_SESSION: '1', VIBEBOARD_NO_LLM: '1' }
+  const env = { ...process.env, SHELL, PORT: String(PORT), HOME, CLAUDECODE: '1', CLAUDE_CODE_CHILD_SESSION: '1', WHEELHOUSE_NO_LLM: '1' }
   server = spawn(process.execPath, [path.join(ROOT, 'server/index.mjs')], { env, stdio: 'ignore' })
   assert.ok(await until(async () => (await fetch(BASE + '/api/sessions').catch(() => null))?.ok), 'server did not start')
 })
@@ -227,7 +227,7 @@ test('a lead creates a helper on the board, gives it work and gets its answer ba
   const rpc = (body) => api('POST', '/mcp/t-lead', { jsonrpc: '2.0', ...body })
   const mcp = async (method, params) => (await (await rpc({ id: 1, method, params })).json()).result
   const call = (name, args) => mcp('tools/call', { name, arguments: args })
-  assert.equal((await mcp('initialize', { protocolVersion: '2025-06-18' })).serverInfo.name, 'vibeboard')
+  assert.equal((await mcp('initialize', { protocolVersion: '2025-06-18' })).serverInfo.name, 'wheelhouse')
   assert.equal((await rpc({ method: 'notifications/initialized' })).status, 202)
   assert.ok((await mcp('tools/list')).tools.some((t) => t.name === 'create_helper'))
 
@@ -353,7 +353,7 @@ test('idle loop fires once and retires at its run limit', async () => {
   assert.equal(l.active, false)
   assert.equal(l.finishedReason, 'run limit')
   // An in-flight flag on disk would freeze the loop forever after a restart.
-  assert.ok(!fs.readFileSync(path.join(HOME, '.vibeboard', 'loops.json'), 'utf8').includes('"firing"'), 'runtime state persisted')
+  assert.ok(!fs.readFileSync(path.join(HOME, '.wheelhouse', 'loops.json'), 'utf8').includes('"firing"'), 'runtime state persisted')
   await api('DELETE', `/api/loops/${loop.id}`)
   await api('DELETE', '/api/pty/t-loop')
   ws.close()
@@ -461,7 +461,7 @@ test('a question is only answered while it is still the one on screen', async ()
 })
 
 test('a damaged board file is set aside and the backup takes over', async () => {
-  const dir = path.join(HOME, '.vibeboard')
+  const dir = path.join(HOME, '.wheelhouse')
   const good = { projects: [], settings: { fontSize: 13 }, marker: 'good' }
   const put = (body) => api('PUT', '/api/state', body)
   assert.equal((await put(good)).status, 200)

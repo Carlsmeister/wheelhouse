@@ -379,7 +379,7 @@ function NoAgentToast() {
     <div className="board-toast">
       <span>
         <div className="t">No coding agent found</div>
-        <div className="s">vibeboard runs the agents installed on your Mac. Claude Code takes a minute to set up.</div>
+        <div className="s">Wheelhouse runs the agents installed on your Mac. Claude Code takes a minute to set up.</div>
       </span>
       <button className="btn primary" onClick={install}>
         Install Claude Code

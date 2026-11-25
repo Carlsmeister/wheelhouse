@@ -1,4 +1,4 @@
-// vibeboard local server: owns the PTYs (they outlive browser reloads),
+// Wheelhouse local server: owns the PTYs (they outlive browser reloads),
 // receives Claude Code hook events for console status, persists board state.
 import http from 'node:http'
 import net from 'node:net'
@@ -25,10 +25,10 @@ import { createDiagrams } from './diagrams.mjs'
 import * as files from './files.mjs'
 import { approved, linkMessage, matches } from '../shared/links.js'
 
-const PORT = Number(process.env.PORT) || 4317
+const PORT = Number(process.env.PORT) || 4318
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
-// VIBEBOARD_DATA runs a second, separate board (a demo, a test) without touching your real one.
-const DATA_DIR = process.env.VIBEBOARD_DATA || path.join(os.homedir(), '.vibeboard')
+// WHEELHOUSE_DATA runs a second, separate board (a demo, a test) without touching your real one.
+const DATA_DIR = process.env.WHEELHOUSE_DATA || path.join(os.homedir(), '.wheelhouse')
 const STATE_FILE = path.join(DATA_DIR, 'state.json')
 const HOOKS_FILE = path.join(DATA_DIR, 'claude-hooks.json')
 // One sign-in folder per account profile; the id becomes a path, so it is held to a strict shape.
@@ -57,7 +57,7 @@ const CLEAN_ENV = Object.fromEntries(Object.entries(process.env).filter(([k]) =>
 // Claude Code gets these hooks through --settings, so the user's global config stays untouched.
 const hook = (event) => ({
   type: 'command',
-  command: `curl -s -m 2 -X POST -H 'content-type: application/json' --data-binary @- http://127.0.0.1:${PORT}/api/hook/$VIBEBOARD_ID/${event} >/dev/null 2>&1 || true`,
+  command: `curl -s -m 2 -X POST -H 'content-type: application/json' --data-binary @- http://127.0.0.1:${PORT}/api/hook/$WHEELHOUSE_ID/${event} >/dev/null 2>&1 || true`,
 })
 fs.writeFileSync(
   HOOKS_FILE,
@@ -217,8 +217,8 @@ function setStatus(s, status) {
 const shq = (v) => (/^[\w@%+:,./-]+$/.test(v) ? v : `'${v.replace(/'/g, `'\\''`)}'`)
 
 const LEAD_PROMPT =
-  'You run inside vibeboard, a board where the user watches every agent. You are the lead: when a job splits into ' +
-  'parts that can run side by side, bring in helpers with the vibeboard create_helper tool instead of sub-agents or ' +
+  'You run inside Wheelhouse, a board where the user watches every agent. You are the lead: when a job splits into ' +
+  'parts that can run side by side, bring in helpers with the wheelhouse create_helper tool instead of sub-agents or ' +
   'other agent launchers, so the user sees each one on the board. Small jobs you do yourself.'
 
 // Folders outside the project the person connected: the agent may work in them and knows they are there.
@@ -234,8 +234,8 @@ function commandFor(agent, { id, sessionId, resume, yolo, lead, dirs = [] }) {
     // A lead gets the team tools (helpers.mjs), pre-approved: asking leave for each helper defeats the point.
     // The system-prompt line is what makes it reach for them unprompted, over other ways to run agents.
     if (lead) {
-      const config = { mcpServers: { vibeboard: { type: 'http', url: `http://127.0.0.1:${PORT}/mcp/${id}` } } }
-      parts.push('--mcp-config', JSON.stringify(config), '--allowedTools', 'mcp__vibeboard')
+      const config = { mcpServers: { wheelhouse: { type: 'http', url: `http://127.0.0.1:${PORT}/mcp/${id}` } } }
+      parts.push('--mcp-config', JSON.stringify(config), '--allowedTools', 'mcp__wheelhouse')
     }
     const told = [lead && LEAD_PROMPT, dirs.length && foldersPrompt(dirs)].filter(Boolean).join('\n\n')
     if (told) parts.push('--append-system-prompt', told)
@@ -297,7 +297,7 @@ function spawnSession({ id, agentId, cwd, cols, rows, sessionId, resume, yolo, l
     cols: cols || 100,
     rows: rows || 30,
     cwd: dir,
-    env: { ...CLEAN_ENV, ...account, VIBEBOARD_ID: id, COLORTERM: 'truecolor', TERM_PROGRAM: 'vibeboard' },
+    env: { ...CLEAN_ENV, ...account, WHEELHOUSE_ID: id, COLORTERM: 'truecolor', TERM_PROGRAM: 'wheelhouse' },
   })
   const screen = new headless.Terminal({ cols: cols || 100, rows: rows || 30, scrollback: 0, allowProposedApi: true })
   const s = { id, agent, cwd: dir, yolo: !!yolo, profile, pty: p, screen, ask: null, activity: null, outbox: '', flushTimer: null, unacked: new Map(), paused_output: false, stallTimer: null, buf: '', status: 'idle', statusAt: Date.now(), clients: new Set(), paused: false, idleTimer: null, quietUntil: 0, lastInputAt: 0, lastOutputAt: 0, subagents: new Map() }
@@ -592,7 +592,7 @@ function conversationText(s, max = 15000) {
 async function handoffBrief(s) {
   const { context, lastReply } = conversationText(s)
   const withReply = (brief) => (lastReply ? `${brief}\n\nTheir last message, word for word:\n\n${lastReply}` : brief)
-  if (process.env.VIBEBOARD_NO_LLM) return withReply(context.slice(-2000)) // tests: no model call
+  if (process.env.WHEELHOUSE_NO_LLM) return withReply(context.slice(-2000)) // tests: no model call
   const prompt =
     'One coding agent is handing its work to another. From the session below, write the brief the next agent needs: ' +
     'the goal, what was done (files touched), the current state, open problems and the next steps. ' +
@@ -1290,7 +1290,7 @@ server.on('error', (e) => {
   console.error(e.code === 'EADDRINUSE' ? `port ${PORT} is in use by another program` : e)
   process.exit(1)
 })
-server.listen(PORT, '127.0.0.1', () => console.log(`vibeboard server on http://127.0.0.1:${PORT}`))
+server.listen(PORT, '127.0.0.1', () => console.log(`Wheelhouse server on http://127.0.0.1:${PORT}`))
 
 // Give agents up to 3s to close their own tool shells, then kill whatever is left,
 // so no console outlives the server that owns its PTY.

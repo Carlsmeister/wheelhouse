@@ -1,4 +1,4 @@
-// vibeboard as a macOS app: starts the local server, then shows the board in a real window. Web tiles
+// Wheelhouse as a macOS app: starts the local server, then shows the board in a real window. Web tiles
 // become real browsers here: pages that refuse to be framed (Google, GitHub…) load, because the window
 // strips the headers that forbid framing, for frames only.
 const { app, BrowserWindow, dialog, ipcMain, nativeTheme, session, shell } = require('electron')
@@ -7,7 +7,7 @@ const fs = require('node:fs')
 const http = require('node:http')
 const path = require('node:path')
 
-const PORT = Number(process.env.PORT) || 4317
+const PORT = Number(process.env.PORT) || 4318
 const ORIGIN = `http://127.0.0.1:${PORT}`
 const ROOT = path.join(__dirname, '..')
 let server = null
@@ -50,7 +50,7 @@ async function ensureServer() {
     server = null
     failed = true
     if (quitting) return
-    console.error(`vibeboard server exited with ${code}`)
+    console.error(`Wheelhouse server exited with ${code}`)
     // After a crash the page reconnects by itself, and consoles offer to pick their conversation up.
     if (BrowserWindow.getAllWindows().length) restartServer()
   })
@@ -58,13 +58,13 @@ async function ensureServer() {
     if (await alive()) return
     await new Promise((r) => setTimeout(r, 250))
   }
-  throw new Error(`the vibeboard server did not start on port ${PORT}`)
+  throw new Error(`the Wheelhouse server did not start on port ${PORT}`)
 }
 
 async function restartServer() {
   restarts = [...restarts.filter((t) => Date.now() - t < RESTART_WINDOW_MS), Date.now()]
   if (restarts.length > MAX_RESTARTS) {
-    dialog.showErrorBox('vibeboard stopped working', `Its server keeps stopping. Details are in ${logFile()}.`)
+    dialog.showErrorBox('Wheelhouse stopped working', `Its server keeps stopping. Details are in ${logFile()}.`)
     return app.quit()
   }
   try {
@@ -103,11 +103,11 @@ function createWindow() {
     height: 940,
     minWidth: 900,
     minHeight: 600,
-    title: 'vibeboard',
+    title: 'Wheelhouse',
     backgroundColor: nativeTheme.shouldUseDarkColors ? '#0a0908' : '#f5f1ea',
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: { x: 16, y: 18 },
-    show: !process.env.VIBEBOARD_DESKTOP_HIDDEN, // tests drive a hidden window over CDP
+    show: !process.env.WHEELHOUSE_DESKTOP_HIDDEN, // tests drive a hidden window over CDP
     // Agents keep working while the window is behind others: their output must keep being drawn.
     webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, sandbox: true, backgroundThrottling: false },
   })
@@ -160,7 +160,7 @@ app.on('before-quit', async (e) => {
   if (n) {
     const { response } = await dialog.showMessageBox({
       type: 'warning',
-      message: `Quit vibeboard and stop ${n} running agent${n > 1 ? 's' : ''}?`,
+      message: `Quit Wheelhouse and stop ${n} running agent${n > 1 ? 's' : ''}?`,
       detail: 'Claude conversations can be picked up again next time.',
       buttons: ['Quit', 'Cancel'],
       defaultId: 1,
@@ -172,7 +172,7 @@ app.on('before-quit', async (e) => {
   app.quit()
 })
 
-app.setName('vibeboard')
+app.setName('Wheelhouse')
 
 // Opening it a second time brings the window that is already there to the front.
 if (!app.requestSingleInstanceLock()) app.exit(0)
@@ -189,7 +189,7 @@ app.whenReady().then(async () => {
     await ensureServer()
   } catch (err) {
     console.error(err.message)
-    dialog.showErrorBox('vibeboard could not start', `${err.message}. Another program may be using the port, or the details may be in ${logFile()}.`)
+    dialog.showErrorBox('Wheelhouse could not start', `${err.message}. Another program may be using the port, or the details may be in ${logFile()}.`)
     app.quit()
     return
   }

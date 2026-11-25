@@ -289,7 +289,7 @@ export function useDictation(text: string, setText: (t: string) => void) {
     rec.onerror = (e: { error: string }) => {
       setListening(false)
       if (e.error === 'no-speech' || e.error === 'aborted') return
-      const why = e.error === 'not-allowed' ? 'The microphone is not allowed for vibeboard.' : 'Dictation is not available here.'
+      const why = e.error === 'not-allowed' ? 'The microphone is not allowed for Wheelhouse.' : 'Dictation is not available here.'
       useStore.getState().notify(`${why} Use the Mac's own dictation instead: press the fn key twice in any text field.`)
     }
     rec.start()

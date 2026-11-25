@@ -1,6 +1,6 @@
 # Product
 
-vibeboard is a Mac app: a board where several command-line coding agents (Claude Code, Codex, Gemini and others) work side by side on one project.
+Wheelhouse is a Mac app: a board where several command-line coding agents (Claude Code, Codex, Gemini and others) work side by side on one project.
 
 ## Platform
 

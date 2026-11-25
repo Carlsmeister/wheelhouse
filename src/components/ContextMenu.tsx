@@ -130,7 +130,7 @@ function RadialMenu({ at, onClose }: { at: MenuAt; onClose: () => void }) {
       if (text.trim()) s.addNode({ id: nid('t'), type: 'text', position: at.flow, data: { text } })
       else s.notify('The clipboard is empty')
     } catch {
-      s.notify('The browser did not let vibeboard read the clipboard')
+      s.notify('The browser did not let Wheelhouse read the clipboard')
     }
   }
   const pick = (key: string) => {

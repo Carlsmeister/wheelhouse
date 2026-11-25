@@ -1,0 +1,23 @@
+/* Wheelhouse's own styles, kept out of styles.css so pulls from upstream stay clean. main.tsx imports
+   this file after the other stylesheets, so its rules win ties with the library's and the app's. */
+
+/* #23: a selected card's sides are 12 px strips centred on the edge, 6 px inside and 6 px outside,
+   instead of React Flow's 1 px lines. Capped at a third of the card, so a thin line or arrow keeps a
+   middle to move it by. */
+.react-flow__resize-control.line.left,
+.react-flow__resize-control.line.right {
+  width: min(12px, 33%);
+}
+.react-flow__resize-control.line.top,
+.react-flow__resize-control.line.bottom {
+  height: min(12px, 33%);
+}
+/* The strips sit above a card's own content that sets no z-index of its own, so their inner half can
+   be grabbed (a planner's dialog and the planner and orchestrator menus still sit above them). The
+   corner dots sit above the strips, and a console's wire plugs (z-index: 3) above both. */
+.react-flow__resize-control.line {
+  z-index: 1;
+}
+.react-flow__resize-control.handle {
+  z-index: 2;
+}

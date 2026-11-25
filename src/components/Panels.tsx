@@ -64,7 +64,7 @@ export function SettingsModal() {
           </span>
           <div style={{ flex: 1 }}>
             <h2>Settings</h2>
-            <div className="sub">Stored on your disk in ~/.vibeboard</div>
+            <div className="sub">Stored on your disk in ~/.wheelhouse</div>
           </div>
           <button className="icon-btn" title="Close" onClick={close}>
             <X size={18} />

@@ -17,7 +17,7 @@ export function Home() {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
             <Spark size={26} color="var(--accent)" />
-            <span style={{ fontWeight: 600, fontSize: 15, flex: 1 }}>vibeboard</span>
+            <span style={{ fontWeight: 600, fontSize: 15, flex: 1 }}>Wheelhouse</span>
             <ThemeToggle />
           </div>
           <h1>

@@ -1,5 +1,5 @@
 {
-  "name": "vibeboard",
+  "name": "wheelhouse",
   "private": true,
   "version": "1.0.0",
   "license": "MIT",
@@ -50,12 +50,15 @@
     "zustand": "^5.0.16"
   },
   "description": "A board of real terminals for your coding agents, on your Mac.",
-  "author": "Riccardo Niccolò Agosti",
+  "author": "Carl Lundholm",
+  "contributors": [
+    "Riccardo Niccolò Agosti"
+  ],
   "main": "desktop/main.cjs",
   "build": {
-    "appId": "io.github.ricca200xx.vibeboard",
-    "productName": "vibeboard",
-    "copyright": "Copyright © 2026 Riccardo Niccolò Agosti",
+    "appId": "io.github.carlsmeister.wheelhouse",
+    "productName": "Wheelhouse",
+    "copyright": "Copyright © 2026 Riccardo Niccolò Agosti and Carl Lundholm",
     "directories": {
       "output": "release",
       "buildResources": "build"
@@ -82,11 +85,11 @@
       "hardenedRuntime": false,
       "gatekeeperAssess": false,
       "extendInfo": {
-        "NSMicrophoneUsageDescription": "vibeboard listens only while you dictate a command."
+        "NSMicrophoneUsageDescription": "Wheelhouse listens only while you dictate a command."
       }
     },
     "dmg": {
-      "title": "vibeboard ${version}"
+      "title": "Wheelhouse ${version}"
     },
     "afterPack": "build/adhoc-sign.cjs"
   }

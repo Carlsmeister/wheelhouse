@@ -429,7 +429,7 @@ export const useStore = create<S>((set, get) => {
             set({ ...state, loaded: true })
             set((s) => ({ ready: s.liveReady }))
             if (recovered === 'backup') get().notify('Your board file was damaged. It is back as it was at the last backup.')
-            if (recovered === 'empty') get().notify('Your board file was damaged, so this is a fresh board. The old file is kept in ~/.vibeboard.')
+            if (recovered === 'empty') get().notify('Your board file was damaged, so this is a fresh board. The old file is kept in ~/.wheelhouse.')
           })
           .catch(() => setTimeout(load, 1000))
       load()
@@ -1029,7 +1029,7 @@ useStore.subscribe((s, prev) => {
 useStore.subscribe((s, prev) => {
   if (s.live === prev.live) return
   const waiting = Object.values(s.live).filter((l) => l.status === 'needs' && !l.paused).length
-  document.title = waiting ? `(${waiting}) vibeboard` : 'vibeboard'
+  document.title = waiting ? `(${waiting}) Wheelhouse` : 'Wheelhouse'
 })
 
 // Edits from the last 400ms before the window goes away. Leaving the page is the reliable moment to

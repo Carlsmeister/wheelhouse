@@ -34,7 +34,7 @@ export function App() {
           )}
         </div>
       )}
-      {linkDown && <div className="link-down">Reconnecting to vibeboard…</div>}
+      {linkDown && <div className="link-down">Reconnecting to Wheelhouse…</div>}
       <ConfirmSheet />
       <Tips />
     </>

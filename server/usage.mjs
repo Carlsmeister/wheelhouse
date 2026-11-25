@@ -237,7 +237,7 @@ export function createUsage({ dataDir, env, shell, claudeDirs, codexDirs, profil
         cols: COLS,
         rows: ROWS,
         cwd: dir,
-        env: { ...env, ...profileEnv(profile), TERM_PROGRAM: 'vibeboard' },
+        env: { ...env, ...profileEnv(profile), TERM_PROGRAM: 'wheelhouse' },
       })
       let done = false
       let sent = false

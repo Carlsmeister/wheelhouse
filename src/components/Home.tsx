@@ -2,13 +2,16 @@ import { useEffect, useState } from 'react'
 import { ArrowLeft, Folder, FolderGit2, FolderOpen, Plus, Search, X } from 'lucide-react'
 import { api } from '../api'
 import { consoles, useStore } from '../store'
-import { Spark } from './icons'
+import { useTheme } from '../theme'
 import { ThemeToggle } from './Panels'
+import markLight from '../../docs/logo/light.svg'
+import markDark from '../../docs/logo/dark.svg'
 
 export function Home() {
   const projects = useStore((s) => s.projects)
   const live = useStore((s) => s.live)
   const openProject = useStore((s) => s.openProject)
+  const theme = useTheme()
   const recent = [...projects].sort((a, b) => b.openedAt - a.openedAt)
 
   return (
@@ -16,7 +19,7 @@ export function Home() {
       <div className="home-inner">
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
-            <Spark size={26} color="var(--accent)" />
+            <img src={theme === 'dark' ? markDark : markLight} width={26} height={26} alt="" draggable={false} />
             <span style={{ fontWeight: 600, fontSize: 15, flex: 1 }}>Wheelhouse</span>
             <ThemeToggle />
           </div>

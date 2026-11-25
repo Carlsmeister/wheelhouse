@@ -2,7 +2,7 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/logo/dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="docs/logo/light.svg">
-    <img alt="The vibeboard logo, kept from upstream" src="docs/logo/light.svg" width="320">
+    <img alt="Wheelhouse" src="docs/logo/light.svg" width="120">
   </picture>
 </p>
 

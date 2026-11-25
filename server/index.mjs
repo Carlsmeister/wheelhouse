@@ -13,6 +13,7 @@ import pty from 'node-pty'
 import { AGENTS, agentById } from '../shared/agents.js'
 import { createLoops } from './loops.mjs'
 import { copyFromVibeboard } from './migrate.mjs'
+import { writeDurable } from './durable.mjs'
 import { readConversation, readTranscript } from './transcript.mjs'
 import { contextReport } from '../shared/context.js'
 import headless from '@xterm/headless'
@@ -876,8 +877,7 @@ const server = http.createServer(async (req, res) => {
       const body = await readBody(req)
       JSON.parse(body) // reject garbage before it overwrites good state
       backupState()
-      fs.writeFileSync(STATE_FILE + '.tmp', body)
-      fs.renameSync(STATE_FILE + '.tmp', STATE_FILE)
+      writeDurable(STATE_FILE, body)
       return json(res, 200, { ok: true })
     }
     if (route === 'sessions') return json(res, 200, [...sessions.values()].map(summary))

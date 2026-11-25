@@ -45,8 +45,8 @@ const LOW_WATER = 128 * 1024
 const STALL_MS = 5000 // a page that stops answering must not freeze the agent for ever
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-// A first start takes the board over from vibeboard, if there is one; a WHEELHOUSE_DATA board starts empty.
-const copied = process.env.WHEELHOUSE_DATA ? [] : copyFromVibeboard(path.join(os.homedir(), '.vibeboard'), DATA_DIR)
+// A first start takes the board over from vibeboard, if there is one.
+const copied = copyFromVibeboard(path.join(os.homedir(), '.vibeboard'), DATA_DIR, process.env.WHEELHOUSE_DATA)
 if (copied.length) console.log(`copied ${copied.join(', ')} from ~/.vibeboard to ${DATA_DIR}`)
 
 // Yours alone: the board holds your prompts and memories.

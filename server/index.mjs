@@ -11,6 +11,7 @@ import { WebSocketServer } from 'ws'
 import pty from 'node-pty'
 import { AGENTS, agentById } from '../shared/agents.js'
 import { createLoops } from './loops.mjs'
+import { copyFromVibeboard } from './migrate.mjs'
 import { readConversation, readTranscript } from './transcript.mjs'
 import { contextReport } from '../shared/context.js'
 import headless from '@xterm/headless'
@@ -43,6 +44,10 @@ const HIGH_WATER = 512 * 1024
 const LOW_WATER = 128 * 1024
 const STALL_MS = 5000 // a page that stops answering must not freeze the agent for ever
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+// A first start takes the board over from vibeboard, if there is one; a WHEELHOUSE_DATA board starts empty.
+const copied = process.env.WHEELHOUSE_DATA ? [] : copyFromVibeboard(path.join(os.homedir(), '.vibeboard'), DATA_DIR)
+if (copied.length) console.log(`copied ${copied.join(', ')} from ~/.vibeboard to ${DATA_DIR}`)
 
 // Yours alone: the board holds your prompts and memories.
 fs.mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 })

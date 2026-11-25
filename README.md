@@ -308,7 +308,6 @@ npm run dist       # both disk images, in release/
 
 - `npm run build && npm start` serves the built app on `http://127.0.0.1:4318` in your browser. In a
   browser, sites such as Google refuse to show inside a web tile; in the Mac app every site loads.
-- A tag such as `v0.2.0` builds both disk images on GitHub Actions and leaves them on a draft release.
 
 ## Community
 

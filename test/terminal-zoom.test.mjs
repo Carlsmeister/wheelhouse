@@ -4,9 +4,10 @@ import { createServer } from 'vite'
 import react from '@vitejs/plugin-react'
 import { chromium } from 'playwright'
 import { fileURLToPath } from 'node:url'
-import { join } from 'node:path'
+import { join, relative, resolve } from 'node:path'
 
 let server, browser, context, page
+const deniedRequests = new Map()
 const root = fileURLToPath(new URL('..', import.meta.url))
 const text = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -20,6 +21,31 @@ const geometry = () => fixture(f => {
 })
 const point = (g, x, y) => ({ x: g.left + x * g.width / g.cols, y: g.top + y * g.height / g.rows })
 const diagnostic = (action, zoom, g, expected, actual) => JSON.stringify({ surface: 'terminal', action, zoom, rendered: g, expected, actual })
+async function restrictFixtureRequests(context, origin) {
+  const denied = []
+  deniedRequests.set(context, denied)
+  // Mutation runs may serve one explicitly supplied temporary bundle. Never
+  // allow the containing scratch directory or arbitrary filesystem requests.
+  const mutationFile = process.env.WHEELHOUSE_XTERM_TEST_PACKAGE && resolve(process.env.WHEELHOUSE_XTERM_TEST_PACKAGE, 'lib/xterm.mjs')
+  const localMutation = mutationFile && relative(root, mutationFile)
+  const mutationPaths = mutationFile ? [...(localMutation && !localMutation.startsWith('..') ? ['/' + localMutation] : []), '/@fs' + mutationFile, '/@fs/' + mutationFile].map(path => new URL(path, origin).pathname) : []
+  await context.route('**/*', route => {
+    const request = route.request(), url = new URL(request.url()), path = url.pathname
+    const fixtureDocument = path === '/test/fixtures/terminal-zoom/' || path === '/test/fixtures/terminal-zoom/index.html'
+    const fixtureModule = path === '/test/fixtures/terminal-zoom/main.tsx'
+    const viteRuntime = ['/@vite/client', '/@react-refresh', '/node_modules/vite/dist/client/env.mjs'].includes(path)
+    const sourceModule = /^\/(src|shared)\/.*\.(tsx?|m?js|css|svg|woff2?)$/.test(path)
+    const optimizedModule = /^\/node_modules\/\.vite\/deps\/[^/]+\.js$/.test(path)
+    const terminalAsset = /^\/node_modules\/@xterm\/xterm\/(lib\/xterm\.(mjs|js)|css\/xterm\.css)$/.test(path)
+    const fontAsset = /^\/node_modules\/@fontsource-variable\/jetbrains-mono\/(index\.css|files\/[^/]+\.woff2?)$/.test(path)
+    const flowStyles = path === '/node_modules/@xyflow/react/dist/style.css'
+    const logoAsset = /^\/docs\/logo\/(light|dark)\.svg$/.test(path)
+    const mutationAsset = mutationPaths.includes(path)
+    if (request.method() === 'GET' && url.origin === origin && (fixtureDocument || fixtureModule || viteRuntime || sourceModule || optimizedModule || terminalAsset || fontAsset || flowStyles || logoAsset || mutationAsset)) return route.continue()
+    denied.push({ url: request.url(), method: request.method(), resourceType: request.resourceType() })
+    return route.abort('blockedbyclient')
+  })
+}
 async function drag(g, x1, y1, x2, y2) {
   const a = point(g, x1, y1), b = point(g, x2, y2)
   await page.mouse.move(a.x, a.y); await page.mouse.down(); await page.mouse.move(b.x, b.y, { steps: 8 }); await page.mouse.up()
@@ -49,7 +75,7 @@ before(async () => {
     browser = await chromium.launch({ headless: true })
     context = await browser.newContext({ viewport: { width: 2600, height: 1900 } })
     const origin = `http://127.0.0.1:${server.httpServer.address().port}`
-    await context.route('**/*', route => route.request().url().startsWith(origin + '/') ? route.continue() : route.abort('blockedbyclient'))
+    await restrictFixtureRequests(context, origin)
     page = await context.newPage()
     page.setDefaultTimeout(5000)
     await page.addInitScript(() => document.addEventListener('mousedown', event => { window.lastFixturePointer = { x: event.clientX, y: event.clientY } }, true))
@@ -57,7 +83,22 @@ before(async () => {
     await page.waitForFunction(async () => window.terminalZoomFixture && await window.terminalZoomFixture.ready())
   } catch (error) { await context?.close(); await browser?.close(); await server?.close(); throw error }
 })
-after(async () => { await context?.close(); await browser?.close(); await server?.close() })
+after(async () => {
+  await context?.close(); await browser?.close(); await server?.close()
+  assert.deepEqual([...deniedRequests.values()].flat(), [], 'unexpected synthetic-browser requests (URL, method, resource type)')
+})
+
+test('synthetic browser rejects and diagnoses unexpected same-origin API requests', async () => {
+  const target = new URL('/api/request-policy-probe.png', page.url()).href
+  const requested = page.waitForRequest(target)
+  await page.evaluate(target => new Promise(resolve => { const image = new Image(); image.onload = image.onerror = () => resolve(); image.src = target }), target)
+  const request = await requested
+  await request.response()
+  assert.match(request.failure()?.errorText ?? '', /^net::ERR_BLOCKED_BY_CLIENT(?:\.Inspector)?$/, 'unexpected same-origin /api request must be aborted, not served by Vite')
+  const denied = deniedRequests.get(context), index = denied.findIndex(request => request.url === target)
+  assert.notEqual(index, -1, 'blocked API request must have a diagnostic')
+  assert.deepEqual(denied.splice(index, 1), [{ url: target, method: 'GET', resourceType: 'image' }])
+})
 
 for (const zoom of [.5, 1, 2, .08, .67, 1.33, 2.5]) {
   test(`terminal native drag selection matches rendered text at zoom ${zoom}`, async () => {
@@ -174,7 +215,7 @@ test('terminal resize and font changes use fresh geometry without reconnect', as
 async function standalone(bundle, dpr = 1) {
   const isolated = await browser.newContext({ viewport: { width: 1600, height: 1100 }, deviceScaleFactor: dpr })
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`
-  await isolated.route('**/*', route => route.request().url().startsWith(origin + '/') ? route.continue() : route.abort('blockedbyclient'))
+  await restrictFixtureRequests(isolated, origin)
   const tab = await isolated.newPage()
   tab.setDefaultTimeout(5000)
   await tab.goto(origin + '/test/fixtures/terminal-zoom/')
@@ -269,7 +310,7 @@ test('real ConsoleNode selection and SGR remain correct on a translated DPR 2 bo
   const isolated = await browser.newContext({ viewport: { width: 2600, height: 1900 }, deviceScaleFactor: 2 })
   try {
     const origin = `http://127.0.0.1:${server.httpServer.address().port}`
-    await isolated.route('**/*', route => route.request().url().startsWith(origin + '/') ? route.continue() : route.abort('blockedbyclient'))
+    await restrictFixtureRequests(isolated, origin)
     page = await isolated.newPage()
     await page.goto(origin + '/test/fixtures/terminal-zoom/')
     await page.waitForFunction(async () => window.terminalZoomFixture && await window.terminalZoomFixture.ready())

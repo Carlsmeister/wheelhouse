@@ -24,3 +24,7 @@ test('glow is on the working card, the orb, the send button and the selected too
 test('the send button carries the send class', () => {
   assert.ok(read('src/components/BottomBar.tsx').includes('className="round-btn send" title="Send to your agents"'))
 })
+test('the glow detector judges a hex colour by how grey it is', () => {
+  assert.ok(!isGlow('0 8px 24px #333333'))
+  assert.ok(isGlow('0 0 8px #ff8800'))
+})

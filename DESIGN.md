@@ -29,8 +29,8 @@ Each effect has one meaning, so it can only appear where that meaning holds (iss
 
 - **Glow: active now.** `--glow` on the command bar's and the orchestrator's orb, the send button and the selected tool; `--glow-soft` on the working console card. Nothing else glows: not tabs, wires, chips, pills, menus or other buttons, and not the small orbs in menus and Mission Map rows.
 - **Shadow: floats above the board.** Consoles, the orchestrator, the command bar, the chips, the toolbar and the top bar's pills. The board stays flat.
-- **Gradient: the main thing to press.** `--accent` to `--accent-2` on the orbs, the send button and the selected tool. Its soft form is a faint top-down tint on group frames, console heads and the command bar. Never a gradient on the board.
-- **Pulse: work in progress.** The working card's glow breathes over 2.6s, the Working dot blinks, and the command bar's and orchestrator's orbs turn slowly. **All of it stops under `prefers-reduced-motion: reduce`**; the working card keeps a still glow.
+- **Gradient: the main thing to press.** `--accent` to `--accent-2` on the send button and the selected tool; the orbs are a conic gradient through `--accent`, `--accent-2` and `#a57cff`, with a white highlight. Its soft form is a faint top-down tint on group frames, console heads and the command bar. Never a gradient on the board.
+- **Pulse: work in progress.** The working card's glow breathes over 2.6s, the Working dot blinks, and the command bar's and orchestrator's orbs turn slowly. **Under `prefers-reduced-motion: reduce` the working card's breathing, the orbs' turn and the status pill's Working dot stop**; the working card keeps a still glow.
 
 ## Type
 
@@ -49,7 +49,7 @@ Each effect has one meaning, so it can only appear where that meaning holds (iss
 
 ## Motion
 
-It should feel like one continuous material answering the hand. Everything uses `--spring` and only transform and opacity for movement: presses shrink a touch, menus and sheets rise into place in 0.2 to 0.3s, new consoles settle in. Marin's pulses are the exception (the working card's glow breathes, the orb turns). Reduced motion stops them and is respected everywhere.
+It should feel like one continuous material answering the hand. Everything uses `--spring` and only transform and opacity for movement: presses shrink a touch, menus and sheets rise into place in 0.2 to 0.3s, new consoles settle in. Marin's pulses are the exception (the working card's glow breathes, the orb turns). Reduced motion stops them and the status pill's Working dot.
 
 The moment that earns attention is dropping a terminal on another: the target tints and says what will happen, then both glide into a frame that settles around them. Exact sizes glide the same way, and a terminal refits only when the size has settled, so the CLI does not repaint on every frame. Day and night cross-fade with a view transition.
 

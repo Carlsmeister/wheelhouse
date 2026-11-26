@@ -265,7 +265,7 @@ export function DocumentsStudio() {
                 <b>{template?.title ?? 'Document'}</b>
                 <span>{template?.sub}</span>
                 <button className="btn primary" disabled={!!running || !template} onClick={() => template && start({ template: template.id })}>
-                  {agent === 'claude' ? <ClaudeMark size={14} color="#fff" /> : <AgentGlyph id={agent} size={14} />} Generate with {agentName(agent)}
+                  {agent === 'claude' ? <ClaudeMark size={14} /> : <AgentGlyph id={agent} size={14} />} Generate with {agentName(agent)}
                 </button>
                 <small>{running ? `Wait for “${running.title}” to finish.` : 'Saved to this repo’s library when it finishes.'}</small>
               </div>

@@ -1,5 +1,7 @@
 import { SquareTerminal } from 'lucide-react'
 import { agentById } from '../../shared/agents.js'
+import { markSvg } from '../marks'
+import { useTheme, type Theme } from '../theme'
 
 // GitHub's mark, for links to GitHub (lucide dropped brand icons).
 export function GitHubMark({ size = 16 }: { size?: number }) {
@@ -10,25 +12,26 @@ export function GitHubMark({ size = 16 }: { size?: number }) {
   )
 }
 
-// The CLIs' own marks (src/assets/agents, MIT, see NOTICE.md). Shown as images: one-colour marks
-// are drawn in `currentColor`, which an <img> can't inherit, so the colour is written in first.
+// The CLIs' own marks (src/assets/agents, MIT, see NOTICE.md), shown as images. One-colour marks
+// take the theme's black or white, never the agent's colour; coloured marks pass through as they are.
 const MARKS = import.meta.glob('../assets/agents/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>
-const markSrc = (id: string, color: string) => {
+const markSrc = (id: string, theme: Theme) => {
   const svg = MARKS[`../assets/agents/${id}.svg`]
-  return svg && `data:image/svg+xml;utf8,${encodeURIComponent(svg.replaceAll('currentColor', color))}`
+  return svg && `data:image/svg+xml;utf8,${encodeURIComponent(markSvg(svg, theme))}`
 }
 
-// Claude's mark in any colour (white on an active tool button, muted in panels).
-export function ClaudeMark({ size = 18, color }: { size?: number; color?: string }) {
-  const svg = MARKS['../assets/agents/claude.svg']
-  const src = `data:image/svg+xml;utf8,${encodeURIComponent(color ? svg.replace('#D97757', color) : svg)}`
+// Claude's mark, always in its own colour.
+export function ClaudeMark({ size = 18 }: { size?: number }) {
+  const src = `data:image/svg+xml;utf8,${encodeURIComponent(MARKS['../assets/agents/claude.svg'])}`
   return <img src={src} width={size} height={size} alt="" draggable={false} style={{ display: 'block' }} />
 }
 
 export function AgentGlyph({ id, size = 18 }: { id: string; size?: number }) {
+  const theme = useTheme()
   const a = agentById(id)
+  // The catalog colour is only for the shell icon and the letter glyph, which are not trademarks.
   const color = a?.color ?? '#9a948c'
-  const src = markSrc(id, color)
+  const src = markSrc(id, theme)
   if (src) return <img src={src} width={size} height={size} alt="" draggable={false} style={{ display: 'block' }} />
   if (id === 'shell') return <SquareTerminal size={size} color={color} strokeWidth={1.8} />
   return (

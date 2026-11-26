@@ -15,7 +15,7 @@ Cool navy and blue-grey (Marin), not flat grey: the interface floats over the bo
 - `--needs`, `--done`, `--danger`, `--warn`, `--ok`, `--info`, `--purple` mean status and link kinds only.
 - Colours a person picks for shapes and sticky notes are their content and stay as picked. The saved default ink `#ece8e2` means "the theme's text colour": pass stored colours through `themed()`.
 - A group saves one of the eight Regnbåge colours by its light hex and shows the theme's own through `groupColor()` (`src/palette.ts`). A group colour saved before Marin shows as saved.
-- Agent marks show in their official colours, a one-colour mark in the theme's black or white. On an accent fill (the selected tool, a primary button) a mark takes the button's own black or white, `--on-accent`. Codex is the exception: its mark is its own white tile and stays as drawn.
+- Agent marks show in their official colours, a one-colour mark in the theme's black or white. On a primary button a mark takes the button's own black or white, `--on-accent`; Codex is the exception there, since its mark is its own white tile and stays as drawn. The selected tool is not filtered: its Claude mark keeps its orange on the accent fill.
 - The document sheet (`.paper`) is white paper in both themes, so an author mark on the document card takes its light form in both themes: a one-colour mark is black, a coloured mark keeps its colours.
 
 ## Surfaces
@@ -29,10 +29,10 @@ Cool navy and blue-grey (Marin), not flat grey: the interface floats over the bo
 
 Each effect has one meaning, so it can only appear where that meaning holds (issue #9).
 
-- **Glow: active now.** `--glow` on the command bar's and the orchestrator's orb, the send button and the selected tool; `--glow-soft` on the working console card. Nothing else glows: not tabs, wires, chips, pills, menus or other buttons, and not the small orbs in menus and Mission Map rows.
+- **Glow: active now.** `--glow` on the selected tool; a soft accent glow (16px at 36 %, upstream's strength) on the command bar's and the orchestrator's orb; `--glow-soft` on the working console card. Nothing else glows: not the send button, tabs, wires, chips, pills, menus or other buttons, and not the small orbs in menus and Mission Map rows.
 - **Shadow: floats above the board.** Consoles, the orchestrator, the command bar, the chips, the toolbar and the top bar's pills. The board stays flat.
-- **Gradient: the main thing to press.** `--accent` to `--accent-2` on the send button and the selected tool; the orbs are a conic gradient through `--accent`, `--accent-2` and `#a57cff`, with a white highlight. Its soft form is a faint top-down tint on group frames, console heads and the command bar. Never a gradient on the board.
-- **Pulse: work in progress.** The working card's glow breathes over 2.6s, the Working dot blinks, and the command bar's and orchestrator's orbs turn slowly. **Under `prefers-reduced-motion: reduce` the working card's breathing, the orbs' turn and the status pill's Working dot stop**; the working card keeps a still glow.
+- **Gradient: the main thing to press.** `--accent` to `--accent-2` on the selected tool, and on the send button once the field holds text; empty, the send button keeps upstream's grey. The orbs are a lit sphere as upstream draws them, in Marin's blues: one radial gradient from a pale highlight through `--accent-2` and `--accent` to a deep blue rim, with no hard edges. Its soft form is a faint top-down tint on group frames, console heads and the command bar. Never a gradient on the board.
+- **Pulse: work in progress.** The working card's glow breathes over 2.6s and the Working dot blinks. The orbs stand still, as upstream's do: turning a lit sphere would move its light. **Under `prefers-reduced-motion: reduce` the working card's breathing and the status pill's Working dot stop**; the working card keeps a still glow.
 
 ## Type
 
@@ -51,7 +51,7 @@ Each effect has one meaning, so it can only appear where that meaning holds (iss
 
 ## Motion
 
-It should feel like one continuous material answering the hand. Everything uses `--spring` and only transform and opacity for movement: presses shrink a touch, menus and sheets rise into place in 0.2 to 0.3s, new consoles settle in. Marin's pulses are the exception (the working card's glow breathes, the orb turns). Reduced motion stops them and the status pill's Working dot.
+It should feel like one continuous material answering the hand. Everything uses `--spring` and only transform and opacity for movement: presses shrink a touch, menus and sheets rise into place in 0.2 to 0.3s, new consoles settle in. Marin's pulse is the exception (the working card's glow breathes). Reduced motion stops them and the status pill's Working dot.
 
 The moment that earns attention is dropping a terminal on another: the target tints and says what will happen, then both glide into a frame that settles around them. Exact sizes glide the same way, and a terminal refits only when the size has settled, so the CLI does not repaint on every frame. Day and night cross-fade with a view transition.
 

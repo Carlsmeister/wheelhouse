@@ -8,8 +8,9 @@ const reduced = (r) => r.media.includes('prefers-reduced-motion: reduce')
 const animated = marin.filter((r) => !reduced(r) && moving(r)).flatMap((r) => r.selectors)
 const stilled = new Set(marin.filter((r) => reduced(r) && r.decls.get('animation') === 'none').flatMap((r) => r.selectors))
 
-test('the fork animates the working card and the orb', () => {
-  for (const s of ['.console.working', '.commandbar .orb', '.orch .orb']) assert.ok(animated.includes(s), s)
+test('the fork animates the working card, and the orb stands still as upstream draws it', () => {
+  assert.ok(animated.includes('.console.working'))
+  for (const s of animated) assert.ok(!/\borb\b/.test(s), s)
 })
 test('the working card keeps its entrance beside the breathing, so it does not replay when work stops', () => {
   const value = cascade(marin, 'animation').get('.console.working')

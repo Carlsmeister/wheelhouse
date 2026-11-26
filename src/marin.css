@@ -55,19 +55,21 @@
 .console { box-shadow: var(--shadow); }
 
 /* Gradient means the main thing to press; the soft top-down tint on frames and heads is its quiet form. */
+/* The orb is a lit sphere as upstream draws it, in Marin's blues: one radial gradient, so no hard edges. */
 .orb {
-  background: radial-gradient(circle at 30% 25%, rgb(255 255 255 / 0.55), transparent 42%),
-    conic-gradient(from 210deg, var(--accent), var(--accent-2), #a57cff, var(--accent));
+  background: radial-gradient(circle at 38% 35%, #e4f8ff 0%, var(--accent-2) 30%, var(--accent) 65%, #2c44b0 100%);
 }
-.commandbar .send, .tool-btn.active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--on-accent); }
-.commandbar .send:hover { filter: brightness(1.08); }
+/* The send button takes the gradient once the field holds something to send; empty, it keeps upstream's grey. */
+.commandbar:has(input:not(:placeholder-shown)) .send, .tool-btn.active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--on-accent); }
+.commandbar:has(input:not(:placeholder-shown)) .send:hover { filter: brightness(1.08); }
 .group-node {
   background: linear-gradient(180deg, color-mix(in srgb, var(--g) 16%, transparent), color-mix(in srgb, var(--g) 2%, transparent) 70%);
 }
 .console-head, .commandbar { background: linear-gradient(180deg, var(--panel-2), var(--panel)); }
 
-/* Glow means active now: the command bar's and the orchestrator's orb, the send button, the selected tool, and the working card below. */
-.commandbar .orb, .orch .orb, .commandbar .send, .tool-btn.active { box-shadow: var(--glow); }
+/* Glow means active now: the selected tool, the command bar's and the orchestrator's orb (softly, as upstream), and the working card below. */
+.tool-btn.active { box-shadow: var(--glow); }
+.commandbar .orb, .orch .orb { box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 36%, transparent); }
 .git-commit, .btn.primary { box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.22); }
 .wt-ports button.on i { box-shadow: none; }
 .command-pulse { filter: none; }
@@ -88,13 +90,13 @@
   0%, 100% { box-shadow: var(--ring), var(--shadow), var(--glow-soft); }
   50% { box-shadow: var(--ring), var(--shadow), 0 0 48px color-mix(in srgb, var(--accent) 48%, transparent); }
 }
-.commandbar .orb, .orch .orb { animation: spin 8s linear infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .console.working, .commandbar .orb, .orch .orb, .status-pill.working .dot { animation: none; }
+  .console.working, .status-pill.working .dot { animation: none; }
 }
 
-/* On an accent fill an agent mark (an <img>) takes its one-colour form in the button's --on-accent: near-black dark, white light.
-   Codex is exempt: its mark is a full white tile, which the filter would turn into a solid square. */
-.tool-btn.active img:not([data-agent='codex']), .btn.primary img:not([data-agent='codex']) { filter: brightness(0); }
-:root[data-theme='light'] .tool-btn.active img:not([data-agent='codex']), :root[data-theme='light'] .btn.primary img:not([data-agent='codex']) { filter: brightness(0) invert(1); }
+/* On a primary button an agent mark (an <img>) takes its one-colour form in the button's --on-accent: near-black dark, white light.
+   Codex is exempt: its mark is a full white tile, which the filter would turn into a solid square.
+   The selected tool is not filtered: its Claude mark keeps its own orange on the blue fill. */
+.btn.primary img:not([data-agent='codex']) { filter: brightness(0); }
+:root[data-theme='light'] .btn.primary img:not([data-agent='codex']) { filter: brightness(0) invert(1); }

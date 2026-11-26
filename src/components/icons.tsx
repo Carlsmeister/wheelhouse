@@ -32,7 +32,7 @@ export function AgentGlyph({ id, size = 18 }: { id: string; size?: number }) {
   // The catalog colour is only for the shell icon and the letter glyph, which are not trademarks.
   const color = a?.color ?? '#9a948c'
   const src = markSrc(id, theme)
-  if (src) return <img src={src} width={size} height={size} alt="" draggable={false} style={{ display: 'block' }} />
+  if (src) return <img src={src} data-agent={id} width={size} height={size} alt="" draggable={false} style={{ display: 'block' }} />
   if (id === 'shell') return <SquareTerminal size={size} color={color} strokeWidth={1.8} />
   return (
     <span style={{ color, fontSize: size * 0.8, fontWeight: 800, lineHeight: 1, fontFamily: 'var(--mono)' }}>

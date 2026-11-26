@@ -37,7 +37,16 @@ test("on an accent fill a mark takes the button's own black or white", () => {
   const filter = cascade([...rules(read('src/styles.css')), ...rules(read('src/marin.css'))], 'filter')
   for (const fill of ['.tool-btn.active', '.btn.primary']) {
     // Dark --on-accent is #0b111b, light is #ffffff; the light selector adds :root[…], so it outranks the dark one.
-    assert.equal(filter.get(`${fill} img`), 'brightness(0)', fill)
-    assert.equal(filter.get(`:root[data-theme='light'] ${fill} img`), 'brightness(0) invert(1)', fill)
+    assert.equal(filter.get(`${fill} img:not([data-agent='codex'])`), 'brightness(0)', fill)
+    assert.equal(filter.get(`:root[data-theme='light'] ${fill} img:not([data-agent='codex'])`), 'brightness(0) invert(1)', fill)
   }
+})
+test('the Codex mark keeps its own tile on an accent fill, and every other mark keeps the filter', () => {
+  // codex.svg's first path fills the whole view box in white, so the filter would turn it into a solid square.
+  const src = readFileSync(new URL('../src/components/icons.tsx', import.meta.url), 'utf8')
+  assert.ok(src.includes('data-agent={id}'), 'AgentGlyph tags its <img> with the agent id')
+  const filter = cascade([...rules(read('src/styles.css')), ...rules(read('src/marin.css'))], 'filter')
+  const onFill = [...filter.keys()].filter((s) => /\.(tool-btn\.active|btn\.primary)\b.*\bimg\b/.test(s))
+  assert.equal(onFill.length, 4)
+  for (const s of onFill) assert.ok(s.endsWith("img:not([data-agent='codex'])"), `${s} reaches the Codex mark`)
 })

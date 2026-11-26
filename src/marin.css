@@ -94,6 +94,7 @@
   .console.working, .commandbar .orb, .orch .orb, .status-pill.working .dot { animation: none; }
 }
 
-/* On an accent fill an agent mark (an <img>) takes its one-colour form in the button's --on-accent: near-black dark, white light. */
-.tool-btn.active img, .btn.primary img { filter: brightness(0); }
-:root[data-theme='light'] .tool-btn.active img, :root[data-theme='light'] .btn.primary img { filter: brightness(0) invert(1); }
+/* On an accent fill an agent mark (an <img>) takes its one-colour form in the button's --on-accent: near-black dark, white light.
+   Codex is exempt: its mark is a full white tile, which the filter would turn into a solid square. */
+.tool-btn.active img:not([data-agent='codex']), .btn.primary img:not([data-agent='codex']) { filter: brightness(0); }
+:root[data-theme='light'] .tool-btn.active img:not([data-agent='codex']), :root[data-theme='light'] .btn.primary img:not([data-agent='codex']) { filter: brightness(0) invert(1); }

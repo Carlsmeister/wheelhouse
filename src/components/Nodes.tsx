@@ -31,7 +31,7 @@ function GroupNodeImpl({ id, data, selected }: NodeProps<Node<GroupData>>) {
       <Handle type="target" position={Position.Left} className="cmd-handle" isConnectable={false} />
       <div className="group-node" style={{ ['--g' as string]: data.color }}>
         <WirePick id={id} />
-        <div className="group-head" onDoubleClick={() => setEditing(true)}>
+        <div className="group-head">
           <Users size={13} color={data.color} />
           {editing ? (
             <input
@@ -45,7 +45,7 @@ function GroupNodeImpl({ id, data, selected }: NodeProps<Node<GroupData>>) {
               onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
             />
           ) : (
-            data.label
+            <span onDoubleClick={(e) => { e.stopPropagation(); setEditing(true) }}>{data.label}</span>
           )}
           <span className="meta">
             {members.length} · {working ? `${working} running` : 'idle'}
@@ -94,7 +94,10 @@ function TextNodeImpl({ id, data }: NodeProps<Node<TextData>>) {
     <div
       className="text-node"
       style={{ color: data.color && themed(data.color), fontFamily: FONTS[data.font ?? 'Mono'], fontSize: SIZES[data.size ?? 'M'], textAlign: data.align, opacity: data.opacity }}
-      onDoubleClick={() => setEditing(true)}
+      onDoubleClick={(e) => {
+        e.stopPropagation()
+        setEditing(true)
+      }}
     >
       {editing ? (
         <textarea

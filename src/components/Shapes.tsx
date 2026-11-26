@@ -44,7 +44,15 @@ function ShapeNodeImpl({ id, data, selected, width = 160, height = 100 }: NodePr
   return (
     <>
       <NodeResizer isVisible={selected} minWidth={isLine(data.kind) ? 8 : 30} minHeight={isLine(data.kind) ? 8 : 30} />
-      <div className="shape-node" style={{ opacity: data.opacity, fontSize: data.fontSize }} onDoubleClick={() => !isLine(data.kind) && setEditing(true)}>
+      <div
+        className="shape-node"
+        style={{ opacity: data.opacity, fontSize: data.fontSize }}
+        onDoubleClick={(e) => {
+          if (isLine(data.kind)) return
+          e.stopPropagation()
+          setEditing(true)
+        }}
+      >
         <svg width={w} height={h}>{shape}</svg>
         {/* arrows between shapes (diagrams) attach here; ArrowEdge draws them outline to outline */}
         <Handle type="target" position={Position.Top} className="cmd-handle" isConnectable={false} />

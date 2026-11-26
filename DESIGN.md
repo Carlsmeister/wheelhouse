@@ -15,6 +15,7 @@ Cool navy and blue-grey (Marin), not flat grey: the interface floats over the bo
 - `--needs`, `--done`, `--danger`, `--warn`, `--ok`, `--info`, `--purple` mean status and link kinds only.
 - Colours a person picks for shapes and sticky notes are their content and stay as picked. The saved default ink `#ece8e2` means "the theme's text colour": pass stored colours through `themed()`.
 - A group saves one of the eight Regnbåge colours by its light hex and shows the theme's own through `groupColor()` (`src/palette.ts`). A group colour saved before Marin shows as saved.
+- Agent marks show in their official colours, a one-colour mark in the theme's black or white. On an accent fill (the selected tool, a primary button) a mark takes the button's own black or white, `--on-accent`.
 - The document sheet (`.paper`) is white paper in both themes.
 
 ## Surfaces

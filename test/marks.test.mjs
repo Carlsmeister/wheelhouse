@@ -2,6 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readdirSync, readFileSync } from 'node:fs'
 import { markSvg } from '../src/marks.ts'
+import { cascade, read, rules } from './css.mjs'
 
 const dir = new URL('../src/assets/agents/', import.meta.url)
 const marks = readdirSync(dir).filter((f) => f.endsWith('.svg')).map((f) => [f, readFileSync(new URL(f, dir), 'utf8')])
@@ -31,4 +32,12 @@ test('icons.tsx draws each mark for the theme on screen', () => {
   const src = readFileSync(new URL('../src/components/icons.tsx', import.meta.url), 'utf8')
   assert.match(src, /const theme = useTheme\(\)/)
   assert.ok(src.includes('markSvg(svg, theme)'))
+})
+test("on an accent fill a mark takes the button's own black or white", () => {
+  const filter = cascade([...rules(read('src/styles.css')), ...rules(read('src/marin.css'))], 'filter')
+  for (const fill of ['.tool-btn.active', '.btn.primary']) {
+    // Dark --on-accent is #0b111b, light is #ffffff; the light selector adds :root[…], so it outranks the dark one.
+    assert.equal(filter.get(`${fill} img`), 'brightness(0)', fill)
+    assert.equal(filter.get(`:root[data-theme='light'] ${fill} img`), 'brightness(0) invert(1)', fill)
+  }
 })

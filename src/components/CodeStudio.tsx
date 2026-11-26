@@ -172,7 +172,7 @@ export function CodeStudio() {
             {roots.map((root) => (
               <div key={root}>
                 {roots.length > 1 && <div className="ft-root">{base(root)}</div>}
-                <FileTree key={fold.n} expanded={fold.open} entries={trees[root] ?? []} current={file?.root === root ? file.path : undefined} onOpen={(path) => openFile(root, path)} />
+                {trees[root] && <FileTree key={fold.n} expanded={fold.open} entries={trees[root]} current={file?.root === root ? file.path : undefined} onOpen={(path) => openFile(root, path)} />}
               </div>
             ))}
           </div>

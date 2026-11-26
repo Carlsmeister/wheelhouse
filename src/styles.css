@@ -2589,10 +2589,16 @@ button.link:hover {
   gap: 2px;
   font-variant-numeric: tabular-nums;
 }
-.zoom span {
+.zoom .level {
   min-width: 42px;
   text-align: center;
   font-size: 12.5px;
+}
+.zoom input.level {
+  width: 42px;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 
 /* ---------- modals ---------- */

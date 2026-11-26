@@ -13,6 +13,7 @@ import {
 import { api, connectEvents, type LiveSession, type Loop, type LinkMode, type DiagramJob, type DocJob, type Scan, type ServerEvent, type Status } from './api'
 import { agentById } from '../shared/agents.js'
 import { CONSOLE_SIZE, GROUP_HEAD, GROUP_PAD, freeSpot, gridLayout, sizeOf, wouldCycle } from './layout'
+import { BOARD_VERSION, migrate } from './boardfile'
 import type { TeamTemplate } from './teams'
 import type { ThemeMode } from './theme'
 
@@ -426,7 +427,7 @@ export const useStore = create<S>((set, get) => {
           .getState()
           .then((saved) => {
             const { recovered, ...state } = saved as Partial<S> & { recovered?: string }
-            set({ ...state, loaded: true })
+            set({ ...migrate(state, get()), loaded: true })
             set((s) => ({ ready: s.liveReady }))
             if (recovered === 'backup') get().notify('Your board file was damaged. It is back as it was at the last backup.')
             if (recovered === 'empty') get().notify('Your board file was damaged, so this is a fresh board. The old file is kept in ~/.wheelhouse.')
@@ -987,7 +988,7 @@ const snapshot = () => {
     ...p,
     workspaces: p.workspaces.map((w) => ({ ...w, nodes: w.nodes.map(({ selected: _s, dragging: _d, ...n }) => n) })),
   }))
-  return { projects: clean, active, settings, presets }
+  return { version: BOARD_VERSION, projects: clean, active, settings, presets }
 }
 
 // One PUT in flight at a time: two racing uploads could land an older state last.

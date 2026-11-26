@@ -128,10 +128,10 @@ export function CodeStudio() {
               <button className="icon-btn sm" title="Show in Finder" onClick={() => api.reveal(p.path)}>
                 <FolderOpen size={14} />
               </button>
-              <button className={`icon-btn sm ${adding ? 'on' : ''}`} aria-pressed={adding} title={adding ? 'Cancel' : 'Show another folder here'} onClick={() => setAdding((v) => !v)}>
+              <button className={`icon-btn sm ${adding ? 'on' : ''}`} aria-pressed={adding} aria-label="Show another folder here" title={adding ? 'Cancel' : 'Show another folder here'} onClick={() => setAdding((v) => !v)}>
                 {adding ? <X size={14} /> : <FolderPlus size={14} />}
               </button>
-              <button className={`icon-btn sm ${creating ? 'on' : ''}`} aria-pressed={creating} title={creating ? 'Cancel' : 'New file'} onClick={() => setCreating((v) => !v)}>
+              <button className={`icon-btn sm ${creating ? 'on' : ''}`} aria-pressed={creating} aria-label="New file" title={creating ? 'Cancel' : 'New file'} onClick={() => setCreating((v) => !v)}>
                 {creating ? <X size={15} /> : <Plus size={15} />}
               </button>
               <FoldButtons onFold={(open) => setFold((f) => ({ open, n: f.n + 1 }))} />

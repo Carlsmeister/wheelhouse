@@ -59,6 +59,18 @@
 .orb {
   background: radial-gradient(circle at 38% 35%, #e4f8ff 0%, var(--accent-2) 30%, var(--accent) 65%, #2c44b0 100%);
 }
+/* The command bar's and the orchestrator's orb turn slowly: a soft colour layer turns inside, under light and a rim that stay put. */
+.commandbar .orb, .orch .orb { position: relative; overflow: hidden; }
+.commandbar .orb::before, .orch .orb::before, .commandbar .orb::after, .orch .orb::after { content: ''; position: absolute; inset: 0; border-radius: 50%; }
+.commandbar .orb::before, .orch .orb::before {
+  background: radial-gradient(circle at 22% 78%, color-mix(in srgb, var(--accent-2) 75%, transparent), transparent 50%),
+    radial-gradient(circle at 80% 26%, color-mix(in srgb, #5a64f0 50%, transparent), transparent 48%);
+  animation: spin 12s linear infinite;
+}
+.commandbar .orb::after, .orch .orb::after {
+  background: radial-gradient(circle at 38% 35%, rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.2) 18%, transparent 40%),
+    radial-gradient(circle, transparent 60%, rgb(16 32 90 / 0.35));
+}
 /* The send button takes the gradient once the field holds something to send; empty, it keeps upstream's grey. */
 .commandbar:has(input:not(:placeholder-shown)) .send, .tool-btn.active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--on-accent); }
 .commandbar:has(input:not(:placeholder-shown)) .send:hover { filter: brightness(1.08); }
@@ -92,7 +104,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .console.working, .status-pill.working .dot { animation: none; }
+  .console.working, .commandbar .orb::before, .orch .orb::before, .status-pill.working .dot { animation: none; }
 }
 
 /* On a primary button an agent mark (an <img>) takes its one-colour form in the button's --on-accent: near-black dark, white light.

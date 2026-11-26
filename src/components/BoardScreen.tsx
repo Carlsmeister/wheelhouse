@@ -664,6 +664,8 @@ function Zoom() {
           onKeyDown={(e) => {
             if (e.key === 'Escape') e.currentTarget.value = ''
             if (e.key === 'Enter' || e.key === 'Escape') {
+              // Enter's keypress would otherwise click the button that takes focus and reopen the field.
+              e.preventDefault()
               refocus.current = true
               e.currentTarget.blur()
             }

@@ -297,6 +297,8 @@ Your projects and your agents' own settings are not touched.
 ## Build from Source
 
 You need Node.js 24 or later.
+Tests also need Chromium: run `npx playwright install chromium` after installing dependencies.
+The browser regressions use synthetic terminals and never connect to your running app.
 
 ```bash
 npm install

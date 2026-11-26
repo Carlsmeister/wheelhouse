@@ -22,6 +22,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - run: npx playwright install chromium
       # Build must precede the tests: the path-traversal test in test/server.test.mjs skips without dist/.
       - run: npm run build
       - run: npm test

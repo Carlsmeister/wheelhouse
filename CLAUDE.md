@@ -6,6 +6,8 @@ Guidance for coding agents working in this repository. People start at the [READ
 
 Every command is copied from `package.json` and the README's "Build from Source". Node 24.
 Install first with `npm ci`.
+Install the browser-test prerequisite with `npx playwright install chromium` before running tests.
+Browser tests fail explicitly when Chromium is missing.
 
 | Command | Runs | Threshold |
 |---|---|---|

@@ -5,6 +5,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { WirePick } from './ConsoleNode'
 import { useStore, workspace, type GroupData, type InkData, type NoteData, type TextData } from '../store'
 import { themed } from '../theme'
+import { groupColor } from '../palette'
 
 // Paper for sticky notes: warm, a little worn, light text on top.
 export const PAPER = ['#c99a35', '#d9733a', '#c94a4f', '#4f9a66', '#3a9690', '#4a6fcf', '#7d5cd6', '#3b3833']
@@ -29,10 +30,10 @@ function GroupNodeImpl({ id, data, selected }: NodeProps<Node<GroupData>>) {
     <>
       <NodeResizer isVisible={selected} minWidth={240} minHeight={140} />
       <Handle type="target" position={Position.Left} className="cmd-handle" isConnectable={false} />
-      <div className="group-node" style={{ ['--g' as string]: data.color }}>
+      <div className="group-node" style={{ ['--g' as string]: groupColor(data.color) }}>
         <WirePick id={id} />
         <div className="group-head" onDoubleClick={() => setEditing(true)}>
-          <Users size={13} color={data.color} />
+          <Users size={13} style={{ color: groupColor(data.color) }} />
           {editing ? (
             <input
               className="nodrag"

@@ -445,7 +445,7 @@ function LeftToolbar() {
         {TOOLS.map((t) => (
           <span key={t.tool} style={{ position: 'relative', display: 'grid' }}>
             <button className={`tool-btn ${isOn(t.tool) ? 'active' : ''}`} title={menu === t.tool ? undefined : t.tip} onClick={() => pick(t.tool)}>
-              {t.tool === 'spawn' && tool === 'spawn' ? <ClaudeMark size={20} color="#fff" /> : t.icon}
+              {t.icon}
             </button>
             {t.tool === 'shape' && menu === 'shape' && <ShapesMenu onClose={() => setMenu(null)} />}
           </span>

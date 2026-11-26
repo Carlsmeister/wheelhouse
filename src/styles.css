@@ -243,11 +243,18 @@ button.pill:hover {
   height: 28px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 10px;
+  gap: 2px;
+  padding: 0 2px 0 10px;
   border-radius: 9px;
   color: var(--muted);
   transition: background 0.16s, color 0.16s, box-shadow 0.16s;
+}
+.tab-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  color: inherit;
 }
 .tab:hover {
   color: var(--text);
@@ -264,12 +271,13 @@ button.pill:hover {
   font-variant-numeric: tabular-nums;
 }
 .tab .x {
-  display: none;
-  color: var(--muted);
-}
-.tab.active .x,
-.tab:hover .x {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  color: var(--muted);
 }
 .tab input {
   background: transparent;

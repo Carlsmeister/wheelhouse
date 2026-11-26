@@ -142,7 +142,7 @@ export function MarkdownStudio() {
                   ))}
                 </select>
               ) : (
-                <small>{p.name}</small>
+                <small title={p.name}>{p.name}</small>
               )}
             </span>
             <span className="studio-title-btns">

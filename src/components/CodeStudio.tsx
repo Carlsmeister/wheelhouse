@@ -122,7 +122,7 @@ export function CodeStudio() {
             </span>
             <span style={{ flex: 1, minWidth: 0 }}>
               <b>Code</b>
-              <small>{p.name}</small>
+              <small title={p.name}>{p.name}</small>
             </span>
             <span className="studio-title-btns">
               <button className="icon-btn sm" title="Show in Finder" onClick={() => api.reveal(p.path)}>

@@ -33,3 +33,19 @@
   --group-0: #e8483d; --group-1: #d98a00; --group-2: #0fa596; --group-3: #2369e8;
   --group-4: #7a47e6; --group-5: #e2428a; --group-6: #2fa84a; --group-7: #ea6f1e;
 }
+
+/* Text on an accent fill: upstream writes #fff, which fails on dark Marin's light accent. */
+.tool-btn.active, .inspector .swatch.custom, .cal-cell .num.today, .git-commit, .ink-panel .swatch.custom,
+.round-btn.hot, .btn.primary, .pills button.on, .tool-btn .tool-badge, .check.on, .mini-seg button.on,
+.acct-row .use, .acct-connect .connect, .orch-connect.on, .orch-pick.on, .round-btn.go, .wire-pick.on span,
+.radial .petal:hover, .link-menu .menu-item.kind.on .ico, .docs-ask .send, .git-check.on { color: var(--on-accent); }
+
+/* Opaque, so a pill's text sits on exactly what test/contrast.mjs measures, whatever is behind it. */
+.status-pill.working, .status-pill.needs, .status-pill.done, .pill-state.working {
+  background: color-mix(in srgb, currentColor var(--pill-tint), var(--panel));
+}
+
+/* The document sheet is white in both themes, so it takes light Marin's values; .paper.dark outranks these. */
+.paper a, .callout-label, .doc-card-label { color: #2369e8; }
+.paper code { background: #eaf0f6; color: #1b2a4a; }
+.paper blockquote.callout { border: 1px solid #d8e0ea; background: #f2f5f9; color: #14202e; }

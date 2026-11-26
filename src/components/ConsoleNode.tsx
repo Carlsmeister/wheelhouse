@@ -244,9 +244,8 @@ function TerminalView({ id, epoch, onExit }: { id: string; epoch: number; onExit
     if (t) Object.assign(t.term.options, terminalLook(theme))
   }, [theme])
 
-  // ponytail: xterm ignores the board's CSS scale, so mouse selection is offset when zoom != 100%.
-  // Keyboard is unaffected. Double-click the console to focus it at 100% when the board has room for it between its
-  // bars (that also drops the stray selection); otherwise it settles smaller, so click the zoom label and type 100.
+  // scripts/patch-xterm.mjs normalizes pointer coordinates under board scale.
+  // Double-click still clears selection when the board frames this console.
   return (
     <div
       ref={ref}

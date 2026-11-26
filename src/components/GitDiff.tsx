@@ -151,36 +151,40 @@ export function BranchMenu({ cwd, current, onDone, onClose }: { cwd: string; cur
   const slug = name.trim().toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '')
   return (
     <div className="menu branch-menu" onMouseLeave={onClose}>
-      <div className="menu-title">Branches</div>
-      {branches.map((b) => (
-        <button key={b} className="menu-item" disabled={busy || b === current} onClick={() => go(b, false)}>
-          <GitBranch size={14} /> <span className="mono">{b}</span>
-          {b === current && <Check size={14} style={{ marginLeft: 'auto' }} />}
-        </button>
-      ))}
-      <div className="menu-title" style={{ marginTop: 6 }}>
-        New branch
-      </div>
-      <div className="branch-kinds">
-        {['feat/', 'fix/', 'release/'].map((p) => (
-          <button key={p} className={prefix === p ? 'on' : ''} onClick={() => setPrefix(p)}>
-            {p.slice(0, -1)}
+      <div className="branch-list">
+        <div className="menu-title">Branches</div>
+        {branches.map((b) => (
+          <button key={b} className="menu-item" disabled={busy || b === current} onClick={() => go(b, false)}>
+            <GitBranch size={14} /> <span className="mono">{b}</span>
+            {b === current && <Check size={14} style={{ marginLeft: 'auto' }} />}
           </button>
         ))}
       </div>
-      <form
-        className="branch-new"
-        onSubmit={(e) => {
-          e.preventDefault()
-          if (slug) go(prefix + slug, true)
-        }}
-      >
-        <span className="mono">{prefix}</span>
-        <input value={name} placeholder="what it is for" onChange={(e) => setName(e.target.value)} />
-        <button className="round-btn sm" disabled={!slug || busy} title="Create and switch to it">
-          <Plus size={14} />
-        </button>
-      </form>
+      <div className="branch-foot">
+        <div className="menu-title" style={{ marginTop: 6 }}>
+          New branch
+        </div>
+        <div className="branch-kinds">
+          {['feat/', 'fix/', 'release/'].map((p) => (
+            <button key={p} className={prefix === p ? 'on' : ''} onClick={() => setPrefix(p)}>
+              {p.slice(0, -1)}
+            </button>
+          ))}
+        </div>
+        <form
+          className="branch-new"
+          onSubmit={(e) => {
+            e.preventDefault()
+            if (slug) go(prefix + slug, true)
+          }}
+        >
+          <span className="mono">{prefix}</span>
+          <input value={name} placeholder="what it is for" onChange={(e) => setName(e.target.value)} />
+          <button className="round-btn sm" disabled={!slug || busy} title="Create and switch to it">
+            <Plus size={14} />
+          </button>
+        </form>
+      </div>
     </div>
   )
 }

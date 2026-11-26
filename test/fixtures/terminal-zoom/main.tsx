@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { ReactFlow, ReactFlowProvider } from '@xyflow/react'
 import { Terminal } from '@xterm/xterm'
 import { ConsoleNode } from '../../../src/components/ConsoleNode'
+import { BoardScreen } from '../../../src/components/BoardScreen'
 import { useStore } from '../../../src/store'
 import '@xyflow/react/dist/style.css'
 import '@xterm/xterm/css/xterm.css'
@@ -27,13 +28,28 @@ class FakeSocket {
   close() { this.readyState = 3 }
 }
 window.WebSocket = FakeSocket as unknown as typeof WebSocket
-window.fetch = async () => { throw new Error('External transport disabled in synthetic fixture') }
+const routing = new URLSearchParams(location.search).has('routing')
+const codeText = 'const syntheticWord = 42;\n'
+// Only these in-memory CodeStudio reads exist. Every other request stays disabled.
+window.fetch = async (input, init) => {
+  const url = new URL(String(input), location.origin)
+  if (routing && url.origin === location.origin && init?.method === 'GET') {
+    if (url.pathname === '/api/files/tree' && url.search === '?root=%2Fsynthetic') return Response.json({ entries: [{ name: 'fixture.ts', path: 'fixture.ts' }] })
+    if (url.pathname === '/api/files/read' && url.search === '?root=%2Fsynthetic&path=fixture.ts') return Response.json({ path: 'fixture.ts', text: codeText, size: codeText.length })
+  }
+  throw new Error('External transport disabled in synthetic fixture')
+}
 
 const nodes = [{ id: 'terminal', type: 'console', position: { x: 40, y: 40 }, style: { width: 640, height: 420 }, data: { agent: 'shell', name: 'Synthetic terminal', dot: '#fff', cwd: '/synthetic', epoch: 0 } }]
-useStore.setState({ loaded: false, active: '/synthetic', projects: [{ path: '/synthetic', name: 'Synthetic', activeWs: 'w', workspaces: [{ id: 'w', name: 'Synthetic', nodes, edges: [] }], memories: [] }], live: { terminal: { id: 'terminal', agent: 'shell', cwd: '/synthetic', status: 'idle', statusAt: 0, paused: false } } })
+const routingNodes = [...nodes, { id: 'note', type: 'note', position: { x: 740, y: 180 }, style: { width: 360, height: 240 }, data: { text: 'native note words', color: '#f5e8a3' } }]
+useStore.setState({ loaded: false, active: '/synthetic', projects: [{ path: '/synthetic', name: 'Synthetic', activeWs: 'w', workspaces: [{ id: 'w', name: 'Synthetic', nodes: routing ? routingNodes : nodes, edges: [], viewport: { x: 140, y: 120, zoom: 1 } }], memories: [] }], live: { terminal: { id: 'terminal', agent: 'shell', cwd: '/synthetic', status: 'idle', statusAt: 0, paused: false } } })
+const frameCalls: string[][] = []
+const frame = useStore.getState().frame
+if (routing) useStore.setState({ frame: ids => { frameCalls.push(ids); frame(ids) } })
 
 function App() {
   const ns = useStore(s => s.projects[0].workspaces[0].nodes)
+  if (routing) return <BoardScreen />
   return <><div style={{ width: 2400, height: 1800 }}><ReactFlow nodes={ns} edges={[]} nodeTypes={{ console: ConsoleNode }} defaultViewport={{ x: 20, y: 20, zoom: 1 }} minZoom={.08} maxZoom={2.5} zoomOnDoubleClick={false} onInit={flow => useStore.setState({ flow })} /></div><input id="other-input" aria-label="Other editable field" style={{ position: 'fixed', bottom: 10, left: 10 }} /></>
 }
 createRoot(document.getElementById('root')!).render(<ReactFlowProvider><App /></ReactFlowProvider>)
@@ -55,6 +71,11 @@ const fixture = {
   inputFrames: () => frames.filter(f => f.t === 'i').map(f => f.d!),
   clearInput: () => { frames.length = 0 },
   socketCount: () => sockets.length,
+  viewport: () => useStore.getState().flow!.getViewport(),
+  frameCalls: () => frameCalls.slice(),
+  clearFrameCalls: () => { frameCalls.length = 0 },
+  openCode: () => useStore.setState({ modal: 'code' }),
+  closeModal: () => useStore.setState({ modal: null }),
   async reset(lines = 12) {
     terminal().reset()
     await write(Array.from({ length: lines }, () => text).join('\r\n'))
@@ -64,7 +85,11 @@ const fixture = {
     await settled()
   },
   async resize(width: number, height: number) {
-    useStore.getState().resizeNode('terminal', width, height)
+    if (routing) {
+      // Set up synthetic geometry directly: resizeNode intentionally schedules
+      // its own later framing, which is a different interaction under test.
+      useStore.setState(s => ({ projects: s.projects.map(p => ({ ...p, workspaces: p.workspaces.map(w => ({ ...w, nodes: w.nodes.map(n => n.id === 'terminal' ? { ...n, width, height, measured: { width, height }, style: { ...n.style, width, height } } : n) })) })) }))
+    } else useStore.getState().resizeNode('terminal', width, height)
     await settled()
   },
   async fontSize(size: number) { useStore.setState(s => ({ settings: { ...s.settings, fontSize: size } })); await settled() },

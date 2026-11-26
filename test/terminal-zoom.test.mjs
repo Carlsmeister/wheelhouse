@@ -88,6 +88,101 @@ after(async () => {
   assert.deepEqual([...deniedRequests.values()].flat(), [], 'unexpected synthetic-browser requests (URL, method, resource type)')
 })
 
+// Removing BoardScreen's onNodeDoubleClick binding must break the framing
+// assertions here. The fixture mounts the production screen and real store.
+test('BoardScreen routes native double-clicks without stealing editable selections', async (t) => {
+  const originalPage = page
+  const isolated = await browser.newContext({ viewport: { width: 1600, height: 1000 } })
+  try {
+    const origin = new URL(originalPage.url()).origin
+    await restrictFixtureRequests(isolated, origin)
+    page = await isolated.newPage()
+    page.setDefaultTimeout(5000)
+    await page.goto(origin + '/test/fixtures/terminal-zoom/?routing')
+    await page.waitForFunction(async () => window.terminalZoomFixture && await window.terminalZoomFixture.ready())
+    const prepare = async zoom => {
+      await fixture(f => f.resize(640, 420))
+      await setup(zoom)
+      await fixture(f => f.write('\x1b[2J\x1b[Hhello native words'))
+      await fixture(f => f.clearFrameCalls())
+      return geometry()
+    }
+    for (const zoom of [1, 1.004]) await t.test(`displayed 100% preserves native terminal word selection at ${zoom}`, async () => {
+      const g = await prepare(zoom), before = await fixture(f => f.viewport())
+      const p = point(g, 2.5, .5)
+      await page.mouse.dblclick(p.x, p.y)
+      assert.equal(await fixture(f => f.terminal.getSelection()), 'hello')
+      assert.deepEqual(await fixture(f => f.frameCalls()), [])
+      assert.deepEqual(await fixture(f => f.viewport()), before)
+    })
+    for (const zoom of [.5, 2]) await t.test(`terminal double-click clears selection and frames at ${zoom}`, async () => {
+      const g = await prepare(zoom)
+      await fixture(f => f.terminal.select(0, 0, 5))
+      const p = point(g, 2.5, .5)
+      await page.mouse.dblclick(p.x, p.y)
+      assert.deepEqual(await fixture(f => f.frameCalls()), [['terminal']])
+      assert.equal(await fixture(f => f.terminal.getSelection()), '')
+      await page.waitForFunction(() => Math.abs(window.terminalZoomFixture.viewport().zoom - 1) < .00001)
+    })
+    await t.test('oversized terminal framing remains below maxZoom 1', async () => {
+      await prepare(.5)
+      await fixture(f => f.resize(3400, 2200))
+      await page.waitForFunction(() => window.terminalZoomFixture.terminal.cols > 200)
+      const p = point(await geometry(), 2.5, .5)
+      await page.mouse.dblclick(p.x, p.y)
+      assert.deepEqual(await fixture(f => f.frameCalls()), [['terminal']])
+      await page.waitForFunction(() => window.terminalZoomFixture.viewport().zoom < .45)
+      assert.equal(await fixture(f => f.terminal.getSelection()), '')
+    })
+    for (const surface of ['header', 'background']) await t.test(`console ${surface} still frames`, async () => {
+      await prepare(.5)
+      const selector = surface === 'header' ? '.console-head > .dot' : '.console-body'
+      const bounds = await page.locator(selector).boundingBox()
+      // Body padding is outside xterm. The header dot is noninteractive.
+      await page.mouse.dblclick(bounds.x + (surface === 'header' ? bounds.width / 2 : 2), bounds.y + bounds.height / 2)
+      assert.deepEqual(await fixture(f => f.frameCalls()), [['terminal']])
+      await page.waitForFunction(() => Math.abs(window.terminalZoomFixture.viewport().zoom - 1) < .00001)
+    })
+    await t.test('console name editing keeps its native selection and never frames', async () => {
+      await prepare(.5)
+      await page.locator('.console-head span.name').dblclick()
+      const input = page.locator('.console-head input.name')
+      await input.dblclick({ position: { x: 20, y: 8 } })
+      assert.equal(await input.evaluate(e => e.selectionEnd > e.selectionStart), true)
+      await page.keyboard.type('Renamed')
+      assert.match(await input.inputValue(), /Renamed/)
+      assert.deepEqual(await fixture(f => f.frameCalls()), [])
+      await page.keyboard.press('Enter')
+    })
+    for (const zoom of [.5, 1, 2]) await t.test(`note textarea retains native selection/editing at ${zoom}`, async () => {
+      await prepare(zoom)
+      // Pan the actual note into the usable viewport at each zoom.
+      await fixture((f, zoom) => f.setViewport({ x: 240 - 740 * zoom, y: 200 - 180 * zoom, zoom }), zoom)
+      const textarea = page.locator('.note-node textarea')
+      await textarea.fill('native note words')
+      await textarea.dblclick({ position: { x: 22, y: 12 } })
+      assert.equal(await textarea.evaluate(e => e.selectionEnd > e.selectionStart), true)
+      await page.keyboard.type('edited')
+      assert.match(await textarea.inputValue(), /edited/)
+      assert.deepEqual(await fixture(f => f.frameCalls()), [])
+      assert.equal(await fixture(f => f.viewport().zoom), zoom)
+    })
+    await t.test('CodeView editor retains native selection and editing', async () => {
+      await prepare(.5)
+      await fixture(f => f.openCode())
+      await page.locator('.ft-row', { hasText: 'fixture.ts' }).click()
+      const word = page.locator('.cm-line').filter({ hasText: 'syntheticWord' })
+      await word.dblclick({ position: { x: 75, y: 8 } })
+      assert.equal(await page.evaluate(() => getSelection()?.toString()), 'syntheticWord')
+      await page.keyboard.type('editedWord')
+      assert.match(await page.locator('.cm-content').innerText(), /editedWord/)
+      assert.deepEqual(await fixture(f => f.frameCalls()), [])
+      assert.equal(await fixture(f => f.viewport().zoom), .5)
+      await fixture(f => f.closeModal())
+    })
+  } finally { page = originalPage; await isolated.close() }
+})
+
 test('synthetic browser rejects and diagnoses unexpected same-origin API requests', async () => {
   const target = new URL('/api/request-policy-probe.png', page.url()).href
   const requested = page.waitForRequest(target)

@@ -50,3 +50,15 @@ test('the Codex mark keeps its own tile on an accent fill, and every other mark 
   assert.equal(onFill.length, 4)
   for (const s of onFill) assert.ok(s.endsWith("img:not([data-agent='codex'])"), `${s} reaches the Codex mark`)
 })
+test("the document card's author mark draws in black ink on the paper in both themes", () => {
+  // .doc-card-body is fixed paper (#fdfcfa) in both themes, so the dark form's white ink would vanish on it.
+  const docs = readFileSync(new URL('../src/components/DocumentsStudio.tsx', import.meta.url), 'utf8')
+  const by = docs.match(/className="by">\s*(<AgentGlyph\b[^>]*>)/)
+  assert.ok(by, 'the author line draws an AgentGlyph')
+  assert.match(by[1], /\btheme="light"/)
+  const icons = readFileSync(new URL('../src/components/icons.tsx', import.meta.url), 'utf8')
+  assert.match(icons, /function AgentGlyph\(\{[^}]*\btheme\b/, 'AgentGlyph takes a theme')
+  for (const [f, svg] of marks.filter(([, s]) => s.includes('currentColor'))) {
+    assert.ok(markSvg(svg, 'light').includes('#000000'), f)
+  }
+})

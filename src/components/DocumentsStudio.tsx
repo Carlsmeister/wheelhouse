@@ -297,7 +297,7 @@ function DocumentNodeImpl({ data, selected }: NodeProps<Node<{ cwd: string; id: 
             <span>Document</span>
             {doc && (
               <span className="by">
-                <AgentGlyph id={doc.agent} size={12} /> {agentName(doc.agent)}
+                <AgentGlyph id={doc.agent} size={12} theme="light" /> {agentName(doc.agent)}
               </span>
             )}
           </div>

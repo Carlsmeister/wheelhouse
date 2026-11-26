@@ -26,12 +26,13 @@ export function ClaudeMark({ size = 18 }: { size?: number }) {
   return <img src={src} width={size} height={size} alt="" draggable={false} style={{ display: 'block' }} />
 }
 
-export function AgentGlyph({ id, size = 18 }: { id: string; size?: number }) {
+// `theme` is for a fixed background, such as the document paper, which is light in both themes.
+export function AgentGlyph({ id, size = 18, theme: on }: { id: string; size?: number; theme?: Theme }) {
   const theme = useTheme()
   const a = agentById(id)
   // The catalog colour is only for the shell icon and the letter glyph, which are not trademarks.
   const color = a?.color ?? '#9a948c'
-  const src = markSrc(id, theme)
+  const src = markSrc(id, on ?? theme)
   if (src) return <img src={src} data-agent={id} width={size} height={size} alt="" draggable={false} style={{ display: 'block' }} />
   if (id === 'shell') return <SquareTerminal size={size} color={color} strokeWidth={1.8} />
   return (

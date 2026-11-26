@@ -11,21 +11,39 @@ const count = (s, re) => (s.match(re) ?? []).length
 const assertWheel = (svg) => {
   assert.equal(count(svg, /<rect x="-11" y="-286" width="22" height="224" rx="11"/g), 8, 'spokes')
   assert.equal(count(svg, /<circle[^>]* cy="-338" r="40"/g), 8, 'dots')
-  for (const r of [236, 118, 42]) assert.match(svg, new RegExp(`<circle[^>]* r="${r}"`), `circle r ${r}`)
+  for (const r of [236, 118, 42]) {
+    const circle = svg.match(new RegExp(`<circle[^>]* r="${r}"[^>]*>`))?.[0]
+    assert.ok(circle, `circle r ${r}`)
+    // A ring: no fill and a stroke, inline or through auto.svg's class r.
+    const ring = (circle.includes('fill="none"') && /stroke="#/.test(circle)) ||
+      (circle.includes('class="r"') && /\.r\{fill:none;stroke:#/.test(svg))
+    assert.ok(ring, `circle r ${r} is a ring`)
+  }
+}
+
+// build/icon.icns as a map of chunk type to chunk data.
+const icnsChunks = () => {
+  const icns = readFileSync(new URL('../build/icon.icns', import.meta.url))
+  assert.equal(icns.toString('latin1', 0, 4), 'icns')
+  const chunks = new Map()
+  for (let at = 8, len; at < icns.length; at += len) {
+    len = icns.readUInt32BE(at + 4)
+    assert.ok(len >= 8 && at + len <= icns.length, `icns chunk at ${at} has length ${len}`)
+    chunks.set(icns.toString('latin1', at, at + 4), icns.subarray(at + 8, at + len))
+  }
+  return chunks
 }
 
 // The ic07 chunk of build/icon.icns: a 128 px PNG, decoded to RGBA rows.
 const ic07Pixels = () => {
-  const icns = readFileSync(new URL('../build/icon.icns', import.meta.url))
-  let png
-  for (let at = 8; at < icns.length; at += icns.readUInt32BE(at + 4)) {
-    if (icns.toString('latin1', at, at + 4) === 'ic07') png = icns.subarray(at + 8, at + icns.readUInt32BE(at + 4))
-  }
+  const png = icnsChunks().get('ic07')
   assert.ok(png, 'ic07 chunk')
   let width, height, idat = []
-  for (let at = 8; at < png.length; at += 12 + png.readUInt32BE(at)) {
+  for (let at = 8, len; at < png.length; at += 12 + len) {
+    len = png.readUInt32BE(at)
+    assert.ok(at + 12 + len <= png.length, `PNG chunk at ${at} has length ${len}`)
     const type = png.toString('latin1', at + 4, at + 8)
-    const data = png.subarray(at + 8, at + 8 + png.readUInt32BE(at))
+    const data = png.subarray(at + 8, at + 8 + len)
     if (type === 'IHDR') {
       width = data.readUInt32BE(0)
       height = data.readUInt32BE(4)
@@ -82,6 +100,7 @@ for (const [file, colour] of [['docs/logo/light.svg', '#1b2a4a'], ['docs/logo/da
     const svg = read(file)
     assert.match(svg, /viewBox="-390 -390 780 780"/)
     assertWheel(svg)
+    assert.equal(count(svg, /<rect/g), 8, 'the spokes are its only rects')
     assert.deepEqual(new Set(colours(svg)), new Set([colour]))
   })
 }
@@ -94,10 +113,7 @@ test('docs/logo/auto.svg is #1b2a4a in light and #e6edf7 in dark, and nothing el
   assert.deepEqual(new Set(colours(svg.slice(at))), new Set(['#e6edf7']))
 })
 test('build/icon.icns is an icns file holding ic07 and ic10', () => {
-  const icns = readFileSync(new URL('../build/icon.icns', import.meta.url))
-  assert.equal(icns.toString('latin1', 0, 4), 'icns')
-  const types = []
-  for (let at = 8; at < icns.length; at += icns.readUInt32BE(at + 4)) types.push(icns.toString('latin1', at, at + 4))
+  const types = [...icnsChunks().keys()]
   assert.ok(types.includes('ic07'), types.join())
   assert.ok(types.includes('ic10'), types.join())
 })

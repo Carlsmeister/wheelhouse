@@ -5442,6 +5442,7 @@ body.desktop::before {
   left: 84px; /* the traffic lights */
   -webkit-app-region: drag;
 }
+.desktop .topbar .tab,
 .desktop .topbar button,
 .desktop .topbar a,
 .desktop .topbar input,

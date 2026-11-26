@@ -2,6 +2,44 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { runUI } from './fixture/driver.mjs'
 
+// Losing the wrapper's no-drag styling exposes its padding in the desktop
+// titlebar. Computed CSS preserves that boundary, not native Electron behavior.
+test('desktop workspace tab surfaces retain no-drag styling', async () => {
+  const result = await runUI(async (page) => {
+    await page.evaluate(() => document.body.classList.add('desktop'))
+    const surfaces = await page.evaluate(() => {
+      const region = (e) => getComputedStyle(e).getPropertyValue('-webkit-app-region')
+      return {
+        topbar: region(document.querySelector('.topbar')),
+        tabs: [...document.querySelectorAll('.tab')].map((tab) => {
+          const rect = tab.getBoundingClientRect()
+          const paddingHit = document.elementFromPoint(rect.x + 1, rect.y + rect.height / 2)
+          return {
+            text: tab.textContent,
+            active: tab.classList.contains('active'),
+            wrapper: region(tab),
+            label: region(tab.querySelector('.tab-label')),
+            close: region(tab.querySelector('.x')),
+            paddingLeft: parseFloat(getComputedStyle(tab).paddingLeft),
+            paddingHitIsWrapper: paddingHit === tab,
+          }
+        }),
+      }
+    })
+    const failures = []
+    if (surfaces.topbar !== 'drag') failures.push('desktop titlebar retains drag styling')
+    if (surfaces.tabs.length !== 3) failures.push('measures all three synthetic workspace tabs')
+    for (const tab of surfaces.tabs) {
+      if (!(tab.paddingLeft > 1 && tab.paddingHitIsWrapper)) failures.push(`${tab.text}: measures wrapper padding outside buttons`)
+      if (tab.wrapper !== 'no-drag') failures.push(`${tab.text}: wrapper padding retains no-drag styling`)
+      if (tab.label !== 'no-drag' || tab.close !== 'no-drag') failures.push(`${tab.text}: sibling controls retain no-drag styling`)
+    }
+    return { failures, checkpoints: [{ name: 'desktop computed tab surfaces', ...surfaces }] }
+  })
+  console.log(JSON.stringify(result))
+  assert.deepEqual(result.failures, [])
+})
+
 // A background keyboard close must not replace another workspace's sheet and
 // orphan its resolver. Cancelling must release ownership for a real retry.
 test('keyboard close preserves the pending confirmation and allows retry', async () => {

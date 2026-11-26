@@ -39,6 +39,7 @@
 .round-btn.hot, .btn.primary, .pills button.on, .tool-btn .tool-badge, .check.on, .mini-seg button.on,
 .acct-row .use, .acct-connect .connect, .orch-connect.on, .orch-pick.on, .round-btn.go, .wire-pick.on span,
 .radial .petal:hover, .link-menu .menu-item.kind.on .ico, .docs-ask .send, .git-check.on { color: var(--on-accent); }
+.orch-pick.on small { color: color-mix(in srgb, var(--on-accent) 75%, transparent); }
 
 /* Opaque, so a pill's text sits on exactly what test/contrast.mjs measures, whatever is behind it. */
 .status-pill.working, .status-pill.needs, .status-pill.done, .pill-state.working {

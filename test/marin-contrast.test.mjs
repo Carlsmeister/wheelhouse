@@ -23,6 +23,10 @@ test('white text on an accent fill takes --on-accent', () => {
   const colour = cascade([...base, ...rules(read('src/marin.css'))], 'color')
   for (const s of [...white, '.git-check.on']) assert.equal(colour.get(s), 'var(--on-accent)', s)
 })
+test('the orchestrator picker hint on the accent takes --on-accent', () => {
+  const colour = cascade([...rules(read('src/styles.css')), ...rules(read('src/marin.css'))], 'color')
+  assert.equal(colour.get('.orch-pick.on small'), 'color-mix(in srgb, var(--on-accent) 75%, transparent)')
+})
 test('the status pills take the theme tint the contrast table measures', () => {
   const bg = cascade([...rules(read('src/styles.css')), ...rules(read('src/marin.css'))], 'background')
   for (const s of ['.status-pill.working', '.status-pill.needs', '.status-pill.done', '.pill-state.working'])

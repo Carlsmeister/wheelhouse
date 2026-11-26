@@ -445,7 +445,7 @@ function CommandBar() {
       <button className="round-btn" title="Recent commands" onClick={() => setShowHistory((v) => !v)}>
         <ChevronUp size={17} />
       </button>
-      <button className="round-btn" title="Send to your agents" onClick={submit}>
+      <button className="round-btn send" title="Send to your agents" onClick={submit}>
         <ArrowUp size={16} />
       </button>
       <button className={`round-btn ${listening ? 'hot' : ''}`} title="Dictate instead of typing (or hold space)" onClick={() => (listening ? stopVoice() : startVoice())}>

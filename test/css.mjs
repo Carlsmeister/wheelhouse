@@ -87,3 +87,37 @@ export function cascade(rules, prop, { reducedMotion = false } = {}) {
   }
   return out
 }
+
+const LENGTH = /^-?(\d*\.)?\d+(px|em|rem)?$/
+const NEUTRAL_LAYERS = ['var(--shadow)', 'var(--shadow-sm)', 'var(--rim)']
+
+// Grey enough to read as a shadow rather than a colour: RGB channels within 48 of each other.
+function neutral(colour) {
+  if (colour.startsWith('rgb(var(--ink)')) return true
+  let ch
+  const hex = colour.match(/^#([0-9a-f]{3,8})$/i)
+  if (hex) {
+    const h = hex[1].length < 6 ? [...hex[1]].map((c) => c + c).join('') : hex[1]
+    ch = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16))
+  } else if (/^rgba?\(/.test(colour) && !colour.includes('var(')) ch = colour.match(/[\d.]+/g).slice(0, 3).map(Number)
+  else return false
+  return Math.max(...ch) - Math.min(...ch) <= 48
+}
+
+// True when a box-shadow value, or a filter value's drop-shadow(), has an outer, blurred, coloured layer.
+// shortcut: lengths are px, em or rem, and a named colour (black, grey) or hsl() counts as a colour, upgrade when a shadow first uses one.
+export function isGlow(value) {
+  if (!value) return false
+  const v = collapse(value.replace(/\s*!important$/, ''))
+  const layers = v.includes('drop-shadow(')
+    ? split(v, ' ').filter((f) => f.startsWith('drop-shadow(')).map((f) => f.slice(12, -1))
+    : split(v, ',')
+  return layers.map(collapse).some((layer) => {
+    if (/^var\([^()]*\)$/.test(layer)) return layer === 'var(--glow)' || layer === 'var(--glow-soft)'
+    const parts = split(layer, ' ')
+    if (parts.includes('inset')) return false
+    const lengths = parts.filter((p) => LENGTH.test(p))
+    const colour = parts.filter((p) => !LENGTH.test(p)).join(' ')
+    return lengths.length >= 3 && parseFloat(lengths[2]) !== 0 && !neutral(colour)
+  })
+}

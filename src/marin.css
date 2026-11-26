@@ -50,3 +50,46 @@
 .paper a, .callout-label, .doc-card-label { color: #2369e8; }
 .paper code { background: #eaf0f6; color: #1b2a4a; }
 .paper blockquote.callout { border: 1px solid #d8e0ea; background: #f2f5f9; color: #14202e; }
+
+/* Shadow means it floats above the board. Chips, bars and pills already take --shadow and --shadow-sm. */
+.console { box-shadow: var(--shadow); }
+
+/* Gradient means the main thing to press; the soft top-down tint on frames and heads is its quiet form. */
+.orb {
+  background: radial-gradient(circle at 30% 25%, rgb(255 255 255 / 0.55), transparent 42%),
+    conic-gradient(from 210deg, var(--accent), var(--accent-2), #a57cff, var(--accent));
+}
+.commandbar .send, .tool-btn.active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--on-accent); }
+.commandbar .send:hover { filter: brightness(1.08); }
+.group-node {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--g) 16%, transparent), color-mix(in srgb, var(--g) 2%, transparent) 70%);
+}
+.console-head, .commandbar { background: linear-gradient(180deg, var(--panel-2), var(--panel)); }
+
+/* Glow means active now: the command bar's and the orchestrator's orb, the send button, the selected tool, and the working card below. */
+.commandbar .orb, .orch .orb, .commandbar .send, .tool-btn.active { box-shadow: var(--glow); }
+.git-commit, .btn.primary { box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.22); }
+.wt-ports button.on i { box-shadow: none; }
+.command-pulse { filter: none; }
+
+/* Pulse means work in progress. console-in stays first: dropping it would replay the entrance whenever work stops. */
+.console.working {
+  --ring: 0 0 #0000;
+  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  box-shadow: var(--ring), var(--shadow), var(--glow-soft);
+  animation: console-in 0.26s var(--spring) both, marin-breathe 2.6s ease-in-out infinite;
+}
+/* Upstream's selected rule outranks .console.working; --ring carries the selection ring through the keyframes. */
+.react-flow__node.selected .console.working {
+  --ring: 0 0 0 1px var(--accent);
+  box-shadow: var(--ring), var(--shadow), var(--glow-soft);
+}
+@keyframes marin-breathe {
+  0%, 100% { box-shadow: var(--ring), var(--shadow), var(--glow-soft); }
+  50% { box-shadow: var(--ring), var(--shadow), 0 0 48px color-mix(in srgb, var(--accent) 48%, transparent); }
+}
+.commandbar .orb, .orch .orb { animation: spin 8s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .console.working, .commandbar .orb, .orch .orb, .status-pill.working .dot { animation: none; }
+}

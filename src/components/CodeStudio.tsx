@@ -1,6 +1,6 @@
 import { memo, useEffect, useState } from 'react'
 import { NodeResizer, type Node, type NodeProps } from '@xyflow/react'
-import { ChevronDown, ChevronRight, CodeXml, File, FileJson, FileText, Folder, FolderOpen, FolderPlus, Image, PanelTop, Plus, RotateCw, Save, X } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronsDownUp, ChevronsUpDown, CodeXml, File, FileJson, FileText, Folder, FolderOpen, FolderPlus, Image, PanelTop, Plus, RotateCw, Save, X } from 'lucide-react'
 import { api, type FileEntry } from '../api'
 import { insertCard } from '../board'
 import { project, useStore } from '../store'
@@ -46,6 +46,20 @@ export function FileTree({ entries, current, onOpen, label = (e: FileEntry) => e
   )
 }
 
+// Expand all and Collapse all for a view's title row; the view remounts its tree with `expanded` set.
+export function FoldButtons({ onFold }: { onFold: (open: boolean) => void }) {
+  return (
+    <>
+      <button className="icon-btn sm" title="Expand all" onClick={() => onFold(true)}>
+        <ChevronsUpDown size={14} />
+      </button>
+      <button className="icon-btn sm" title="Collapse all" onClick={() => onFold(false)}>
+        <ChevronsDownUp size={14} />
+      </button>
+    </>
+  )
+}
+
 type Open = { root: string; path: string; saved: string; text: string; size: number } | null
 
 export function CodeStudio() {
@@ -57,6 +71,7 @@ export function CodeStudio() {
   const [error, setError] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
   const [adding, setAdding] = useState(false)
+  const [fold, setFold] = useState({ open: false, n: 0 })
 
   const loadTree = (root: string) =>
     api
@@ -109,15 +124,18 @@ export function CodeStudio() {
               <b>Code</b>
               <small>{p.name}</small>
             </span>
-            <button className="icon-btn sm" title="Show in Finder" onClick={() => api.reveal(p.path)}>
-              <FolderOpen size={14} />
-            </button>
-            <button className="icon-btn sm" title="Show another folder here" onClick={() => setAdding((v) => !v)}>
-              <FolderPlus size={14} />
-            </button>
-            <button className="icon-btn sm" title="New file" onClick={() => setCreating((v) => !v)}>
-              <Plus size={15} />
-            </button>
+            <span className="studio-title-btns">
+              <button className="icon-btn sm" title="Show in Finder" onClick={() => api.reveal(p.path)}>
+                <FolderOpen size={14} />
+              </button>
+              <button className="icon-btn sm" title="Show another folder here" onClick={() => setAdding((v) => !v)}>
+                <FolderPlus size={14} />
+              </button>
+              <button className="icon-btn sm" title="New file" onClick={() => setCreating((v) => !v)}>
+                <Plus size={15} />
+              </button>
+              <FoldButtons onFold={(open) => setFold((f) => ({ open, n: f.n + 1 }))} />
+            </span>
           </div>
           {adding && (
             <PathInput
@@ -154,7 +172,7 @@ export function CodeStudio() {
             {roots.map((root) => (
               <div key={root}>
                 {roots.length > 1 && <div className="ft-root">{base(root)}</div>}
-                <FileTree entries={trees[root] ?? []} current={file?.root === root ? file.path : undefined} onOpen={(path) => openFile(root, path)} />
+                <FileTree key={fold.n} expanded={fold.open} entries={trees[root] ?? []} current={file?.root === root ? file.path : undefined} onOpen={(path) => openFile(root, path)} />
               </div>
             ))}
           </div>

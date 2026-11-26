@@ -21,3 +21,10 @@
 .react-flow__resize-control.handle {
   z-index: 2;
 }
+
+/* #24: a studio's title-row buttons sit together, 2 px apart, so the view's name keeps its room in the
+   280 px sidebar. */
+.studio-title-btns {
+  display: flex;
+  gap: 2px;
+}

@@ -1,0 +1,35 @@
+/* Wheelhouse's Marin look (issue #9), over upstream's styles.css: tokens first, then overrides by exact selector. */
+:root {
+  --bg: #0b111b; --panel: #121a27; --panel-2: #1a2434; --panel-3: #222e42;
+  --line: #243248; --line-2: #2e3f5a;
+  --text: #e6edf7; --text-2: #c3cfdf; --muted: #8d9cb0; --faint: #5f6e83; --ink: 230 237 247;
+  --accent: #5b9bff; --accent-rgb: 91 155 255; --accent-2: #7fe0ff; --on-accent: #0b111b;
+  --working: var(--accent); --idle: #8d9cb0; --needs: #f5b83d; --done: #3ecf8e;
+  --edge: #5a6a82; --grid: #1c2738; --term-bg: #0e1520; --chip-bg: #121a27;
+  --glass: rgb(18 26 39 / 0.58); --popover: rgb(22 31 46 / 0.84); --seg-on: rgb(230 237 247 / 0.16);
+  --rim: inset 0 0 0 1px rgb(230 237 247 / 0.1), inset 0 1px 0 rgb(255 255 255 / 0.07);
+  --shadow: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 16px 42px rgb(0 0 0 / 0.55);
+  --shadow-sm: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 6px 19px rgb(0 0 0 / 0.45);
+  --glow: 0 0 19px color-mix(in srgb, var(--accent) 65%, transparent);
+  --glow-soft: 0 0 19px color-mix(in srgb, var(--accent) 18%, transparent);
+  --pill-tint: 12%; --syn-heading: #5b9bff;
+  --group-0: #ff7a6b; --group-1: #ffc04d; --group-2: #3dd6c6; --group-3: #5b9bff;
+  --group-4: #a57cff; --group-5: #ff77b4; --group-6: #6fdc7f; --group-7: #ff9d5c;
+}
+:root[data-theme='light'] {
+  --bg: #f2f5f9; --panel: #ffffff; --panel-2: #eaf0f6; --panel-3: #dfe7f0;
+  --line: #d8e0ea; --line-2: #c5d0dd;
+  --text: #14202e; --text-2: #2e3c4d; --muted: #5a6879; --faint: #7d8b9e; --ink: 20 32 46;
+  --accent: #2369e8; --accent-rgb: 35 105 232; --accent-2: #1fb6e8; --on-accent: #ffffff;
+  --working: var(--accent); --idle: #5a6879; --needs: #996000; --warn: #996000; --done: #0e7c4f;
+  --ok: #1a7d36; --danger: #ce2e1b;
+  --edge: #9aa8ba; --grid: #ced8e4; --term-bg: #ffffff; --chip-bg: #ffffff;
+  --glass: rgb(255 255 255 / 0.62); --popover: rgb(255 255 255 / 0.88); --seg-on: #ffffff;
+  --rim: inset 0 0 0 1px rgb(16 32 64 / 0.1), inset 0 1px 0 rgb(255 255 255 / 0.7);
+  --scrim: rgb(16 32 64 / 0.22);
+  --shadow: 0 1px 2px rgb(16 32 64 / 0.08), 0 13px 35px rgb(16 32 64 / 0.13);
+  --shadow-sm: 0 1px 2px rgb(16 32 64 / 0.08), 0 6px 16px rgb(16 32 64 / 0.09);
+  --pill-tint: 6%; --syn-heading: #2369e8;
+  --group-0: #e8483d; --group-1: #d98a00; --group-2: #0fa596; --group-3: #2369e8;
+  --group-4: #7a47e6; --group-5: #e2428a; --group-6: #2fa84a; --group-7: #ea6f1e;
+}

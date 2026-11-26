@@ -1,16 +1,16 @@
 # Design
 
-A native-feeling macOS tool. The agents' work is the content; the chrome recedes. All values live as tokens at the top of `src/styles.css`, defined for dark and for `:root[data-theme='light']`. The theme follows the Mac unless Settings says otherwise (`src/theme.ts`).
+A native-feeling macOS tool. The agents' work is the content; the chrome recedes. All values live as tokens at the top of `src/styles.css`, defined for dark and for `:root[data-theme='light']`; `src/marin.css`, imported after it, overrides them with the fork's Marin values (issue #9). The theme follows the Mac unless Settings says otherwise (`src/theme.ts`).
 
 ## Look
 
-Warm black and ivory, not grey: the interface floats over the board in pills and capsules of glass, with soft continuous corners. The material is Apple's (blur, a thin light rim, a highlight on the top edge); the character is its own (coral, coloured chips, agents tinting their console's frame). The day theme is the same design on warm paper.
+Cool navy and blue-grey (Marin), not flat grey: the interface floats over the board in pills and capsules of glass, with soft continuous corners. The material is Apple's (blur, a thin light rim, a highlight on the top edge); the character is its own (blue, coloured chips, agents tinting their console's frame). The day theme is the same design on cool paper.
 
 ## Colour
 
 - Neutrals carry the interface: `--bg`, `--panel`, `--panel-2`, `--panel-3`, `--line`, `--line-2`, `--text`, `--text-2`, `--muted`, `--faint`.
 - `--ink` is the theme's foreground as RGB channels, for translucent hover and fill states: `rgb(var(--ink) / 0.08)`. Never write a translucent white.
-- Coral (`--accent`) goes on the primary action, the active tool (filled), the active tab, what is selected and an agent that is working.
+- Blue (`--accent`, with `--accent-2` as the end of its gradient) goes on the primary action, the active tool (filled), the active tab, what is selected and an agent that is working.
 - The bottom chips each have a two-colour ring (`--a`, `--b`): the one decorative colour in the interface.
 - `--needs`, `--done`, `--danger`, `--warn`, `--ok`, `--info`, `--purple` mean status and link kinds only.
 - Colours a person picks (shapes, sticky notes, groups) are their content and stay as picked. The saved default ink `#ece8e2` means "the theme's text colour": pass stored colours through `themed()`.
@@ -32,7 +32,7 @@ Warm black and ivory, not grey: the interface floats over the board in pills and
 
 - Radii: 9 to 12 for controls and pills that hold several, 16 for cards and menus, 20 for sheets and the command bar. Full round for chips, tools, round buttons and ring petals.
 - Control height 28 to 36. Lucide icons at stroke 1.6.
-- Selected in a segmented control is a neutral raised segment (`--seg-on`), not coral.
+- Selected in a segmented control is a neutral raised segment (`--seg-on`), not the accent.
 - Every control with no visible word has a `title`, which `Tips` shows as a tooltip. Say what pressing it does, not what it is called.
 - Console actions appear on hover or keyboard focus. Status is always visible, as a dot and a plain word.
 - A small menu that belongs to a node (size, context) opens as a `Popover` on the page, never inside the node: it is not clipped and keeps its size at any zoom. Esc or a click away closes it.

@@ -16,11 +16,11 @@ import { currentTheme, useTheme, type Theme } from '../theme'
 import { Conversation, SimpleFooter, StatusStrip } from './SimpleView'
 
 const DARK = {
-  background: '#0f0e0c',
-  foreground: '#ece4d8',
-  cursor: '#f0553a',
-  cursorAccent: '#0f0e0c',
-  selectionBackground: 'rgba(240, 85, 58, 0.32)',
+  background: '#0e1520',
+  foreground: '#e6edf7',
+  cursor: '#5b9bff',
+  cursorAccent: '#0e1520',
+  selectionBackground: 'rgba(91, 155, 255, 0.32)',
   black: '#1d1d1f',
   red: '#ff6b5b',
   green: '#62d48a',
@@ -39,11 +39,11 @@ const DARK = {
   brightWhite: '#ffffff',
 }
 const LIGHT = {
-  background: '#fffdf9',
-  foreground: '#211d18',
-  cursor: '#dd4a28',
-  cursorAccent: '#fffdf9',
-  selectionBackground: 'rgba(221, 74, 40, 0.2)',
+  background: '#ffffff',
+  foreground: '#14202e',
+  cursor: '#2369e8',
+  cursorAccent: '#ffffff',
+  selectionBackground: 'rgba(35, 105, 232, 0.2)',
   black: '#1d1d1f',
   red: '#c4261a',
   green: '#1a7f37',

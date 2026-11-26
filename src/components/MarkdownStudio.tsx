@@ -146,8 +146,8 @@ export function MarkdownStudio() {
               )}
             </span>
             <span className="studio-title-btns">
-              <button className="icon-btn sm" title="New note" onClick={() => setCreating((v) => !v)}>
-                <Plus size={15} />
+              <button className={`icon-btn sm ${creating ? 'on' : ''}`} aria-pressed={creating} title={creating ? 'Cancel' : 'New note'} onClick={() => setCreating((v) => !v)}>
+                {creating ? <X size={15} /> : <Plus size={15} />}
               </button>
               <FoldButtons onFold={(open) => setFold((f) => ({ open, n: f.n + 1 }))} />
             </span>

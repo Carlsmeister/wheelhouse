@@ -16,6 +16,7 @@ import { CONSOLE_SIZE, GROUP_HEAD, GROUP_PAD, freeSpot, gridLayout, sizeOf, woul
 import { BOARD_VERSION, migrate } from './boardfile'
 import type { TeamTemplate } from './teams'
 import type { ThemeMode } from './theme'
+import { GROUP_COLORS } from './palette'
 
 export { CONSOLE_SIZE, freeSpot }
 
@@ -85,7 +86,7 @@ const forgetLaunch = (keep: (id: string) => boolean) => {
 
 export const NAMES = ['Maya', 'Otto', 'Iris', 'Kai', 'Mila', 'Ren', 'Juno', 'Ada', 'Bex', 'Cy', 'Pip', 'Dax', 'Rafa', 'Lumi', 'Noor', 'Taro', 'Vera', 'Zed', 'Sol', 'Wren']
 export const DOTS = ['#5b8cff', '#ff5a4e', '#a477ff', '#3ecf8e', '#f5b83d', '#ff7ac6', '#4fd1d9']
-export const GROUP_COLORS = ['#e8643c', '#3ecf8e', '#5b8cff', '#a477ff', '#f5b83d']
+export { GROUP_COLORS }
 
 const uid = () => crypto.randomUUID().slice(0, 8)
 

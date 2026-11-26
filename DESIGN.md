@@ -13,7 +13,8 @@ Cool navy and blue-grey (Marin), not flat grey: the interface floats over the bo
 - Blue (`--accent`, with `--accent-2` as the end of its gradient) goes on the primary action, the active tool (filled), the active tab, what is selected and an agent that is working.
 - The bottom chips each have a two-colour ring (`--a`, `--b`): the one decorative colour in the interface.
 - `--needs`, `--done`, `--danger`, `--warn`, `--ok`, `--info`, `--purple` mean status and link kinds only.
-- Colours a person picks (shapes, sticky notes, groups) are their content and stay as picked. The saved default ink `#ece8e2` means "the theme's text colour": pass stored colours through `themed()`.
+- Colours a person picks for shapes and sticky notes are their content and stay as picked. The saved default ink `#ece8e2` means "the theme's text colour": pass stored colours through `themed()`.
+- A group saves one of the eight Regnbåge colours by its light hex and shows the theme's own through `groupColor()` (`src/palette.ts`). A group colour saved before Marin shows as saved.
 - The document sheet (`.paper`) is white paper in both themes.
 
 ## Surfaces

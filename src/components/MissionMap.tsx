@@ -6,6 +6,7 @@ import { consoles, useStore, workspace, type ConsoleData, type GroupData } from 
 import { agentById } from '../../shared/agents.js'
 import { AgentGlyph } from './icons'
 import { useNow } from './LoopsModal'
+import { groupColor } from '../palette'
 
 type Filter = 'all' | 'working' | 'needs' | 'idle' | 'done'
 type Team = { id: string; label: string; color: string; members: Node<ConsoleData>[] }
@@ -28,7 +29,7 @@ function sectionsOf(nodes: Node[], edges: { type?: string; source: string; targe
   const groups = nodes.filter((n) => n.type === 'group') as Node<GroupData>[]
   const claimed = new Set<string>()
   const team = (g: Node<GroupData>): Team => {
-    const t = { id: g.id, label: g.data.label, color: g.data.color, members: all.filter((n) => n.parentId === g.id && !claimed.has(n.id)) }
+    const t = { id: g.id, label: g.data.label, color: groupColor(g.data.color), members: all.filter((n) => n.parentId === g.id && !claimed.has(n.id)) }
     claimed.add(g.id)
     t.members.forEach((m) => claimed.add(m.id))
     return t

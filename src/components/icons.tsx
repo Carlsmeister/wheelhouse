@@ -23,7 +23,7 @@ const markSrc = (id: string, theme: Theme) => {
 // Claude's mark, always in its own colour.
 export function ClaudeMark({ size = 18 }: { size?: number }) {
   const src = `data:image/svg+xml;utf8,${encodeURIComponent(MARKS['../assets/agents/claude.svg'])}`
-  return <img src={src} width={size} height={size} alt="" draggable={false} style={{ display: 'block' }} />
+  return <img src={src} data-agent="claude" width={size} height={size} alt="" draggable={false} style={{ display: 'block' }} />
 }
 
 // `theme` is for a fixed background, such as the document paper, which is light in both themes.

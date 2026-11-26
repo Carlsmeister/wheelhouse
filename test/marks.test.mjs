@@ -36,21 +36,22 @@ test('icons.tsx draws each mark for the theme on screen', () => {
 test("on a primary button a mark takes the button's own black or white", () => {
   const filter = cascade([...rules(read('src/styles.css')), ...rules(read('src/marin.css'))], 'filter')
   // Dark --on-accent is #0b111b, light is #ffffff; the light selector adds :root[…], so it outranks the dark one.
-  assert.equal(filter.get(".btn.primary img:not([data-agent='codex'])"), 'brightness(0)')
-  assert.equal(filter.get(":root[data-theme='light'] .btn.primary img:not([data-agent='codex'])"), 'brightness(0) invert(1)')
+  assert.equal(filter.get(".btn.primary img:not([data-agent='codex']):not([data-agent='claude'])"), 'brightness(0)')
+  assert.equal(filter.get(":root[data-theme='light'] .btn.primary img:not([data-agent='codex']):not([data-agent='claude'])"), 'brightness(0) invert(1)')
 })
 test("the selected tool's Claude mark keeps its orange on the accent fill", () => {
   const filter = cascade([...rules(read('src/styles.css')), ...rules(read('src/marin.css'))], 'filter')
   assert.deepEqual([...filter.keys()].filter((s) => /\.tool-btn\b.*\bimg\b/.test(s)), [])
 })
-test('the Codex mark keeps its own tile on a primary button, and every other mark keeps the filter', () => {
+test('Codex keeps its own tile and Claude its orange on a primary button, and every other mark keeps the filter', () => {
   // codex.svg's first path fills the whole view box in white, so the filter would turn it into a solid square.
   const src = readFileSync(new URL('../src/components/icons.tsx', import.meta.url), 'utf8')
   assert.ok(src.includes('data-agent={id}'), 'AgentGlyph tags its <img> with the agent id')
+  assert.ok(src.includes('data-agent="claude"'), 'ClaudeMark tags its <img> as Claude, as the Generate button draws it')
   const filter = cascade([...rules(read('src/styles.css')), ...rules(read('src/marin.css'))], 'filter')
   const onFill = [...filter.keys()].filter((s) => /\.btn\.primary\b.*\bimg\b/.test(s))
   assert.equal(onFill.length, 2)
-  for (const s of onFill) assert.ok(s.endsWith("img:not([data-agent='codex'])"), `${s} reaches the Codex mark`)
+  for (const s of onFill) assert.ok(s.endsWith("img:not([data-agent='codex']):not([data-agent='claude'])"), `${s} reaches the Codex or Claude mark`)
 })
 test("the document card's author mark draws in black ink on the paper in both themes", () => {
   // .doc-card-body is fixed paper (#fdfcfa) in both themes, so the dark form's white ink would vanish on it.

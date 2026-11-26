@@ -109,6 +109,6 @@
 
 /* On a primary button an agent mark (an <img>) takes its one-colour form in the button's --on-accent: near-black dark, white light.
    Codex is exempt: its mark is a full white tile, which the filter would turn into a solid square.
-   The selected tool is not filtered: its Claude mark keeps its own orange on the blue fill. */
-.btn.primary img:not([data-agent='codex']) { filter: brightness(0); }
-:root[data-theme='light'] .btn.primary img:not([data-agent='codex']) { filter: brightness(0) invert(1); }
+   Claude is exempt too, and the selected tool is not filtered at all: Claude's mark keeps its own orange on the blue fill. */
+.btn.primary img:not([data-agent='codex']):not([data-agent='claude']) { filter: brightness(0); }
+:root[data-theme='light'] .btn.primary img:not([data-agent='codex']):not([data-agent='claude']) { filter: brightness(0) invert(1); }

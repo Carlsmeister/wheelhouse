@@ -15,7 +15,7 @@ Cool navy and blue-grey (Marin), not flat grey: the interface floats over the bo
 - `--needs`, `--done`, `--danger`, `--warn`, `--ok`, `--info`, `--purple` mean status and link kinds only.
 - Colours a person picks for shapes and sticky notes are their content and stay as picked. The saved default ink `#ece8e2` means "the theme's text colour": pass stored colours through `themed()`.
 - A group saves one of the eight Regnbåge colours by its light hex and shows the theme's own through `groupColor()` (`src/palette.ts`). A group colour saved before Marin shows as saved.
-- Agent marks show in their official colours, a one-colour mark in the theme's black or white. On a primary button a mark takes the button's own black or white, `--on-accent`; Codex is the exception there, since its mark is its own white tile and stays as drawn. The selected tool is not filtered: its Claude mark keeps its orange on the accent fill.
+- Agent marks show in their official colours, a one-colour mark in the theme's black or white. On a primary button a mark takes the button's own black or white, `--on-accent`, with two exceptions: Codex, since its mark is its own white tile and stays as drawn, and Claude, whose orange stays. The selected tool is not filtered at all, so its Claude mark keeps its orange there too.
 - The document sheet (`.paper`) is white paper in both themes, so an author mark on the document card takes its light form in both themes: a one-colour mark is black, a coloured mark keeps its colours.
 
 ## Surfaces

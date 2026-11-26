@@ -7,7 +7,7 @@ import { project, useStore } from '../store'
 import { countWords, readMinutes } from '../../shared/docs.js'
 import { layoutGraph, resolveLink } from '../../shared/notes.js'
 import { printPaper, renderMarkdown } from '../markdown'
-import { FileTree, PathInput } from './CodeStudio'
+import { FileTree, FoldButtons, PathInput } from './CodeStudio'
 import { CodeView } from './CodeView'
 
 type View = 'reading' | 'source' | 'graph'
@@ -57,6 +57,7 @@ export function MarkdownStudio() {
   const [view, setView] = useState<View>('reading')
   const [graph, setGraph] = useState<{ notes: string[]; links: [string, string][] } | null>(null)
   const [creating, setCreating] = useState(false)
+  const [fold, setFold] = useState({ open: true, n: 0 })
   const [error, setError] = useState<string | null>(null)
   const notes = useMemo(() => flatten(entries ?? []), [entries])
   const edited = !!file && file.text !== file.saved
@@ -141,12 +142,15 @@ export function MarkdownStudio() {
                   ))}
                 </select>
               ) : (
-                <small>{p.name}</small>
+                <small title={p.name}>{p.name}</small>
               )}
             </span>
-            <button className="icon-btn sm" title="New note" onClick={() => setCreating((v) => !v)}>
-              <Plus size={15} />
-            </button>
+            <span className="studio-title-btns">
+              <button className={`icon-btn sm ${creating ? 'on' : ''}`} aria-pressed={creating} aria-label="New note" title={creating ? 'Cancel' : 'New note'} onClick={() => setCreating((v) => !v)}>
+                {creating ? <X size={15} /> : <Plus size={15} />}
+              </button>
+              <FoldButtons onFold={(open) => setFold((f) => ({ open, n: f.n + 1 }))} />
+            </span>
           </div>
           {creating && (
             <PathInput
@@ -179,7 +183,7 @@ export function MarkdownStudio() {
                 </button>
               ))
             ) : entries?.length ? (
-              <FileTree entries={entries} current={file?.path} onOpen={openNote} label={(e) => (e.dir ? e.name : e.name.replace(MD, ''))} expanded />
+              <FileTree entries={entries} current={file?.path} onOpen={openNote} label={(e) => (e.dir ? e.name : e.name.replace(MD, ''))} key={fold.n} expanded={fold.open} />
             ) : (
               entries && <div className="md-none">No Markdown files in this repo yet. Add one with +.</div>
             )}

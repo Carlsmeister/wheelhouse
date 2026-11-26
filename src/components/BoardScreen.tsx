@@ -635,13 +635,20 @@ function Zoom() {
   // The percentage the field opened with; null while it is closed.
   const [opened, setOpened] = useState<number | null>(null)
   const shown = Math.round(zoom * 100)
+  const btn = useRef<HTMLButtonElement>(null)
+  // Set by Enter or Escape: only a key close hands focus to the button; a click elsewhere keeps its target.
+  const refocus = useRef(false)
+  useEffect(() => {
+    if (opened === null && refocus.current) btn.current?.focus()
+    refocus.current = false
+  }, [opened])
   return (
     <div className="pill zoom">
       <button className="icon-btn sm" title="Zoom out" onClick={() => flow.zoomOut({ duration: 200 })}>
         <Minus size={14} />
       </button>
       {opened === null ? (
-        <button className="level" title="Click to type a zoom level" onClick={() => setOpened(shown)}>
+        <button ref={btn} className="level" title="Click to type a zoom level" onClick={() => setOpened(shown)}>
           {shown}%
         </button>
       ) : (
@@ -656,7 +663,10 @@ function Zoom() {
           onChange={(e) => (e.currentTarget.value = digits(e.currentTarget.value))}
           onKeyDown={(e) => {
             if (e.key === 'Escape') e.currentTarget.value = ''
-            if (e.key === 'Enter' || e.key === 'Escape') e.currentTarget.blur()
+            if (e.key === 'Enter' || e.key === 'Escape') {
+              refocus.current = true
+              e.currentTarget.blur()
+            }
           }}
           onBlur={(e) => {
             const v = zoomTarget(e.currentTarget.value, opened)

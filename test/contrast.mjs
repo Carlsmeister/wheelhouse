@@ -3,7 +3,11 @@
 import { fileURLToPath } from 'node:url'
 import { read, tokens } from './css.mjs'
 
-const rgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16))
+function rgb(hex) {
+  // Anything else would parse to NaN, and NaN < min is false: a pair would pass unmeasured.
+  if (!/^#[0-9a-f]{6}$/i.test(hex)) throw new Error(`cannot measure ${hex}: not #rrggbb`)
+  return [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16))
+}
 const hex = (channels) => '#' + channels.map((c) => Math.round(c).toString(16).padStart(2, '0')).join('')
 
 // Relative luminance, WCAG 2.2.

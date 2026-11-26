@@ -1,13 +1,22 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { cascade, read, rules } from './css.mjs'
-import { contrast, pairs } from './contrast.mjs'
+import { contrast, mix, pairs } from './contrast.mjs'
 
 const TEXT = ['--text', '--text-2', '--muted', '--faint', '--accent', '--needs', '--done', '--danger', '--warn', '--ok', '--info', '--purple']
 
 test('contrast follows WCAG 2.2', () => {
   assert.equal(contrast('#000000', '#ffffff'), 21)
   assert.equal(Math.round(contrast('#5b9bff', '#ffffff') * 100) / 100, 2.77)
+})
+test('mix blends in srgb and rounds each channel', () => {
+  // 255 * 0.5 = 127.5 rounds to 128 (0x80); 0xff * 0.12 + 0x12 * 0.88 = 46.44 rounds to 46 (0x2e).
+  assert.equal(mix('#ffffff', '#000000', 50), '#808080')
+  assert.equal(mix('#ffffff', '#121212', 12), '#2e2e2e')
+})
+test('contrast refuses a colour it cannot measure', () => {
+  for (const bad of ['#fff', 'rgb(0 0 0)', 'color-mix(in srgb, red 50%, blue)'])
+    assert.throws(() => contrast(bad, '#ffffff'), new RegExp(bad.replace(/[()]/g, '\\$&')))
 })
 test('every text and status colour is measured on every surface in both themes', () => {
   for (const theme of ['dark', 'light']) for (const fg of TEXT) for (const bg of ['--bg', '--panel', '--panel-2', '--term-bg'])

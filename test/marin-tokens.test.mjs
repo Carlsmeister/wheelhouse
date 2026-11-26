@@ -23,8 +23,16 @@ test("the terminal draws on Marin's terminal background", () => {
   assert.ok(src.includes("background: '#0e1520'"))
   assert.ok(src.includes("background: '#ffffff'"))
 })
-test('the rule reader keeps strings, url() and nested at-rules out of the way', () => {
-  const css = `
+test('syntax property and meta colours follow the Marin neutrals in both themes', () => {
+  const css = read('src/marin.css')
+  for (const selector of [':root', ":root[data-theme='light']"]) {
+    const t = tokens(css, selector)
+    assert.equal(t.get('--syn-prop'), 'var(--text-2)', selector)
+    assert.equal(t.get('--syn-meta'), 'var(--muted)', selector)
+  }
+})
+
+const SAMPLE = `
     @import url("a;b{c}.css");
     .a, :is(.b, .c) { color: red; background: url(data:x;y{z}) }
     .q::before { content: '}{;'; color: blue }
@@ -33,11 +41,16 @@ test('the rule reader keeps strings, url() and nested at-rules out of the way', 
     @media (min-width: 1px) { @supports (display: grid) { .a { color: green } } }
     @media print { .a { color: black } }
     @media (prefers-reduced-motion: reduce) { .a { color: gray } }`
-  const r = rules(css)
+
+test('the rule reader keeps strings, url() and nested at-rules out of the way', () => {
+  const r = rules(SAMPLE)
   assert.deepEqual(r.map((x) => x.selectors), [['.a', ':is(.b, .c)'], ['.q::before'], ['.a'], ['.a'], ['.a']])
   assert.equal(r[0].decls.get('background'), 'url(data:x;y{z})')
   assert.equal(r[1].decls.get('content'), "'}{;'")
   assert.equal(r[2].media, '@media (min-width: 1px)')
+})
+test('the cascade takes the last value, skips print, and reads reduced motion only when asked', () => {
+  const r = rules(SAMPLE)
   assert.equal(cascade(r, 'color').get('.a'), 'green')
   assert.equal(cascade(r, 'color', { reducedMotion: true }).get('.a'), 'gray')
   assert.equal(cascade(r, 'color').get(':is(.b, .c)'), 'red')

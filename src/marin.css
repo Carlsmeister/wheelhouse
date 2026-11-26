@@ -12,7 +12,7 @@
   --shadow-sm: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 6px 19px rgb(0 0 0 / 0.45);
   --glow: 0 0 19px color-mix(in srgb, var(--accent) 65%, transparent);
   --glow-soft: 0 0 19px color-mix(in srgb, var(--accent) 18%, transparent);
-  --pill-tint: 12%; --syn-heading: #5b9bff;
+  --pill-tint: 12%; --syn-heading: #5b9bff; --syn-prop: var(--text-2); --syn-meta: var(--muted);
   --group-0: #ff7a6b; --group-1: #ffc04d; --group-2: #3dd6c6; --group-3: #5b9bff;
   --group-4: #a57cff; --group-5: #ff77b4; --group-6: #6fdc7f; --group-7: #ff9d5c;
 }
@@ -29,7 +29,7 @@
   --scrim: rgb(16 32 64 / 0.22);
   --shadow: 0 1px 2px rgb(16 32 64 / 0.08), 0 13px 35px rgb(16 32 64 / 0.13);
   --shadow-sm: 0 1px 2px rgb(16 32 64 / 0.08), 0 6px 16px rgb(16 32 64 / 0.09);
-  --pill-tint: 6%; --syn-heading: #2369e8;
+  --pill-tint: 6%; --syn-heading: #2369e8; --syn-prop: var(--text-2); --syn-meta: var(--muted);
   --group-0: #e8483d; --group-1: #d98a00; --group-2: #0fa596; --group-3: #2369e8;
   --group-4: #7a47e6; --group-5: #e2428a; --group-6: #2fa84a; --group-7: #ea6f1e;
 }

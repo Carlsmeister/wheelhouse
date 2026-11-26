@@ -1,4 +1,5 @@
 // A rule reader for these tests, not a CSS parser: enough of the grammar to read src/styles.css and src/marin.css.
+// shortcut: read() would strip a /* inside a string, a nested @media keeps only the innermost prelude, and a prefers-reduced-motion: no-preference block counts as reduced motion, upgrade when styles.css or marin.css first contains one.
 import { readFileSync } from 'node:fs'
 
 const root = new URL('../', import.meta.url)

@@ -1,6 +1,6 @@
 # Design
 
-A native-feeling macOS tool. The agents' work is the content; the chrome recedes. All values live as tokens at the top of `src/styles.css`, defined for dark and for `:root[data-theme='light']`; `src/marin.css`, imported after it, overrides them with the fork's Marin values (issue #9). The theme follows the Mac unless Settings says otherwise (`src/theme.ts`).
+A native-feeling macOS tool. The agents' work is the content; the chrome recedes. All values live as tokens at the top of `src/styles.css`, defined for dark and for `:root[data-theme='light']`; `src/marin.css`, imported after it, overrides them with the fork's Marin values and defines the fork's own tokens beside them (`--accent-2`, `--on-accent`, `--glow`, `--glow-soft`, `--pill-tint`, `--group-0` to `--group-7`; issue #9). The theme follows the Mac unless Settings says otherwise (`src/theme.ts`).
 
 ## Look
 

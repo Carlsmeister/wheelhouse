@@ -5,8 +5,9 @@ import { FitAddon } from '@xterm/addon-fit'
 import { Check, ChevronDown, Forward, RotateCcwClock, RotateCw, X } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { api, ptyUrl, type Subagent } from '../api'
-import { absolute, agentColor, consoles, launchCache, project, useStore, workspace, type ConsoleData } from '../store'
+import { agentColor, consoles, launchCache, project, useStore, workspace, type ConsoleData } from '../store'
 import { CONSOLE_SIZE, MIN_CONSOLE } from '../layout'
+import { focusesOnDoubleClick } from '../dblclick'
 import { ContextChip, ContextDetails, useContextReport } from './ContextPanel'
 import { parseSize, Popover, SizeMenu, sizeText } from './SizeMenu'
 import { AGENTS, agentById } from '../../shared/agents.js'
@@ -244,8 +245,18 @@ function TerminalView({ id, epoch, onExit }: { id: string; epoch: number; onExit
   }, [theme])
 
   // ponytail: xterm ignores the board's CSS scale, so mouse selection is offset when zoom != 100%.
-  // Keyboard is unaffected; double-click the header to snap the console to 100%.
-  return <div ref={ref} style={{ height: '100%' }} />
+  // Keyboard is unaffected. Double-click the console to focus it at 100% when the board has room for it between its
+  // bars (that also drops the stray selection); otherwise it settles smaller, so click the zoom label and type 100.
+  return (
+    <div
+      ref={ref}
+      style={{ height: '100%' }}
+      onDoubleClick={(e) => {
+        const flow = useStore.getState().flow
+        if (flow && focusesOnDoubleClick(e.target as Element, flow.getZoom())) termRef.current?.term.clearSelection()
+      }}
+    />
+  )
 }
 
 // The header's hand-off menu: say what this agent is for, or pass its work to another console now.
@@ -387,14 +398,6 @@ function ConsoleNodeImpl({ id, data, selected, width, height }: NodeProps<Node<C
 
   useEffect(() => setExited(false), [data.epoch])
 
-  const snapTo100 = () => {
-    const s = useStore.getState()
-    const ws = workspace(s)!
-    const n = ws.nodes.find((x) => x.id === id)!
-    const pos = absolute(ws.nodes, n)
-    s.flow?.setCenter(pos.x + (n.measured?.width ?? 640) / 2, pos.y + (n.measured?.height ?? 420) / 2, { zoom: 1, duration: 400 })
-  }
-
   return (
     <>
       <NodeResizer isVisible={selected} minWidth={MIN_CONSOLE.width} minHeight={MIN_CONSOLE.height} />
@@ -424,7 +427,7 @@ function ConsoleNodeImpl({ id, data, selected, width, height }: NodeProps<Node<C
       <Handle type="source" position={Position.Right} className="wire-handle" title="Drag onto another console: it takes over whenever this one finishes" />
       <div className={`console ${status}`} style={{ ['--c' as string]: `color-mix(in srgb, ${color} 48%, var(--panel-3))` }}>
         <WirePick id={id} />
-        <div className="console-head" onDoubleClick={snapTo100}>
+        <div className="console-head">
           <button className="agent-switch nodrag" onClick={() => setAgentMenu((v) => !v)} title={agentById(data.agent)?.name}>
             <AgentGlyph id={data.agent} size={19} />
             <ChevronDown size={12} />

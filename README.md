@@ -243,7 +243,7 @@ Wheelhouse runs whichever of them are installed and on your `PATH`.
 | Esc                             | Leave the current tool, menu or panel            |
 | Hold Space                      | Dictate into the command bar (not while typing)  |
 | Shift- or ⌘-click               | Select several things                            |
-| Double-click a console's header | Show it at 100%                                  |
+| Double-click a card background  | Fit in view, max 100%; text, closed shapes edit  |
 | Right-click                     | A menu for the board or for what is under it     |
 
 ## Privacy and Security

@@ -63,6 +63,7 @@ import { SettingsModal } from './Panels'
 import { themed } from '../theme'
 import { consoleUnder } from '../layout'
 import { digits, zoomTarget } from '../zoom'
+import { focusesOnDoubleClick } from '../dblclick'
 import { UsagePanel } from './UsagePanel'
 
 // A card from a studio shows a plain panel for the moment its code takes to arrive.
@@ -304,6 +305,7 @@ function Board() {
           if (!(e.target as HTMLElement).closest('.console-body, input, textarea')) leaveTyping()
           if (s.tool === 'eraser' && n.type !== 'console' && n.type !== 'group') s.removeNode(n.id)
         }}
+        onNodeDoubleClick={(e, n) => focusesOnDoubleClick(e.target as Element, flow.getZoom()) && useStore.getState().frame([n.id])}
         onPaneContextMenu={(e) => {
           e.preventDefault()
           setMenu({ x: e.clientX, y: e.clientY, flow: flow.screenToFlowPosition({ x: e.clientX, y: e.clientY }) })

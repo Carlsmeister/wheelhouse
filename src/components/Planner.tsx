@@ -487,7 +487,13 @@ function ChecklistNodeImpl({ id, data, selected }: NodeProps<Node<ChecklistData>
                   onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
                 />
               ) : (
-                <span className="text" onDoubleClick={() => setEditing(it.id)}>
+                <span
+                  className="text"
+                  onDoubleClick={(e) => {
+                    e.stopPropagation()
+                    setEditing(it.id)
+                  }}
+                >
                   {it.text}
                 </span>
               )}

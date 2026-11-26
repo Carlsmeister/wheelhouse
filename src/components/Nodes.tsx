@@ -46,7 +46,7 @@ function GroupNodeImpl({ id, data, selected }: NodeProps<Node<GroupData>>) {
               onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
             />
           ) : (
-            data.label
+            <span onDoubleClick={(e) => { e.stopPropagation(); setEditing(true) }}>{data.label}</span>
           )}
           <span className="meta">
             {members.length} · {working ? `${working} running` : 'idle'}
@@ -95,7 +95,10 @@ function TextNodeImpl({ id, data }: NodeProps<Node<TextData>>) {
     <div
       className="text-node"
       style={{ color: data.color && themed(data.color), fontFamily: FONTS[data.font ?? 'Mono'], fontSize: SIZES[data.size ?? 'M'], textAlign: data.align, opacity: data.opacity }}
-      onDoubleClick={() => setEditing(true)}
+      onDoubleClick={(e) => {
+        e.stopPropagation()
+        setEditing(true)
+      }}
     >
       {editing ? (
         <textarea

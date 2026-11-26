@@ -77,7 +77,14 @@ function OrchestratorNodeImpl({ id, selected, positionAbsoluteX, positionAbsolut
   }
 
   const row = (n: Node<ConsoleData>) => (
-    <div key={n.id} className="orch-agent" onDoubleClick={() => s.jumpTo(n.id)}>
+    <div
+      key={n.id}
+      className="orch-agent"
+      onDoubleClick={(e) => {
+        e.stopPropagation()
+        s.jumpTo(n.id)
+      }}
+    >
       <AgentIcon id={n.data.agent} size={26} />
       <span className="who">
         <b>{n.data.name}</b>

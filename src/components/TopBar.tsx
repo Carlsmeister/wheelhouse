@@ -14,6 +14,7 @@ export function TopBar() {
   const p = useStore(project)!
   const projects = useStore((s) => s.projects)
   const live = useStore((s) => Object.keys(s.live).length)
+  const confirming = useStore((s) => !!s.confirming)
   const hasClaude = useStore((s) => s.installed.includes('claude'))
   const s = useStore.getState()
   const [projMenu, setProjMenu] = useState(false)
@@ -103,6 +104,7 @@ export function TopBar() {
               className="x"
               aria-label={`Close ${w.name}`}
               title="Close this workspace"
+              disabled={confirming}
               onDoubleClick={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.stopPropagation()

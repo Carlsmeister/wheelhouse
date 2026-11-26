@@ -12,7 +12,7 @@ let pendingKills: (() => void)[] = []
 window.fetch = async (input, init) => {
   const url = String(input)
   record('mock-fetch', { url, method: init?.method || 'GET' })
-  if (url === '/api/pty/synthetic-agent' && init?.method === 'DELETE') {
+  if (['/api/pty/synthetic-agent', '/api/pty/synthetic-gamma'].includes(url) && init?.method === 'DELETE') {
     if (delayedKill) await new Promise<void>((r) => pendingKills.push(r))
     if (rejectedKills > 0) { rejectedKills--; throw Error('Synthetic DELETE failure') }
     return new Response('{}', { headers: { 'content-type': 'application/json' } })
@@ -43,14 +43,16 @@ const closeWorkspace = (id: string) => {
 const describe = (e: Element | null): any => e ? { tag: e.tagName, cls: e.getAttribute('class'), text: e.textContent?.slice(0, 60), tab: e.closest('.tab')?.textContent } : null
 for (const type of ['pointerdown', 'mousedown', 'mouseup', 'click', 'dblclick']) document.addEventListener(type, (e: any) => record('event', { type, detail: e.detail, x: e.clientX, y: e.clientY, target: describe(e.target) }), true)
 window.addEventListener('unhandledrejection', (e) => record('unhandledrejection', { error: String(e.reason) }))
-function reset({ count = 3, active = 'a', agents = false, delay = false, sheet = true, reject = 0 } = {}) {
+function reset({ count = 3, active = 'a', agents = false, secondAgent = false, delay = false, sheet = true, reject = 0 } = {}) {
   root?.unmount()
   pendingKills.splice(0).forEach((r) => r())
   delayedKill = delay
   rejectedKills = reject
   const nodes = agents ? [{ id: 'synthetic-agent', type: 'console', position: { x: 0, y: 0 }, data: { agent: 'codex', name: 'Synthetic', cwd: '/synthetic', epoch: 0 } }] : []
-  const workspaces = ['a', 'b', 'c'].slice(0, count).map((id) => ({ id, name: { a: 'Alpha', b: 'Beta', c: 'Gamma' }[id], nodes: id === 'b' ? nodes : [], edges: [] }))
-  useStore.setState({ ...base, loaded: false, installed: [], projects: [{ path: '/synthetic', name: 'Synthetic', workspaces, activeWs: active, memories: [], openedAt: 0 }], active: '/synthetic', live: agents ? { 'synthetic-agent': { id: 'synthetic-agent', agent: 'codex', status: 'working', cwd: '/synthetic', paused: false } } : {}, closeWorkspace,
+  const workspaces = ['a', 'b', 'c'].slice(0, count).map((id) => ({ id, name: { a: 'Alpha', b: 'Beta', c: 'Gamma' }[id], nodes: id === 'b' ? nodes : id === 'c' && secondAgent ? nodes.map((n) => ({ ...n, id: 'synthetic-gamma' })) : [], edges: [] }))
+  const live = agents ? { 'synthetic-agent': { id: 'synthetic-agent', agent: 'codex', status: 'working', cwd: '/synthetic', paused: false } } : {}
+  if (agents && secondAgent) Object.assign(live, { 'synthetic-gamma': { ...live['synthetic-agent'], id: 'synthetic-gamma' } })
+  useStore.setState({ ...base, loaded: false, installed: [], projects: [{ path: '/synthetic', name: 'Synthetic', workspaces, activeWs: active, memories: [], openedAt: 0 }], active: '/synthetic', live, closeWorkspace,
     switchWorkspace: (id) => { record('switch-call', { id }); base.switchWorkspace(id) },
     renameWorkspace: (id, name) => { record('rename-call', { id, name }); base.renameWorkspace(id, name) },
     notify: (msg) => { record('notify-call', { msg }); base.notify(msg) },

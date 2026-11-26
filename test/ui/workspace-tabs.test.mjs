@@ -2,6 +2,70 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { runUI } from './fixture/driver.mjs'
 
+// A background keyboard close must not replace another workspace's sheet and
+// orphan its resolver. Cancelling must release ownership for a real retry.
+test('keyboard close preserves the pending confirmation and allows retry', async () => {
+  const result = await runUI(async (page) => {
+    const failures = [], checkpoints = []
+    const check = (ok, message) => { if (!ok) failures.push(message) }
+    const settle = () => page.waitForTimeout(50)
+    const snapshot = async (name) => {
+      await settle()
+      const value = await page.evaluate(() => ({ state: window.probe.state(), outcomes: window.probe.outcomes.slice(), trace: window.probe.trace.slice(), focus: document.activeElement?.getAttribute('aria-label') || document.activeElement?.textContent }))
+      checkpoints.push({ name, ...value })
+      check(!value.trace.some((e) => ['close-reject', 'unhandledrejection'].includes(e.kind)), `${name}: no rejected close`)
+      return value
+    }
+    const focusClose = async (name) => {
+      await page.mouse.click(20, 180)
+      for (let i = 0; i < 30; i++) {
+        await page.keyboard.press('Tab')
+        if (await page.evaluate((label) => document.activeElement?.getAttribute('aria-label') === label, `Close ${name}`)) return true
+      }
+      check(false, `Tab reaches Close ${name}`)
+      return false
+    }
+    await page.evaluate(() => window.probe.reset({ agents: true, secondAgent: true }))
+    await settle()
+    if (await focusClose('Beta')) await page.keyboard.press('Space')
+    let v = await snapshot('Beta opened with Space')
+    check(v.state.confirming === 'Close Beta?', 'Space opens Beta confirmation')
+    // Follow native focus traversal until the other close or the sheet's Cancel
+    // button. A reachable background close used to overwrite the pending sheet.
+    for (let i = 0; i < 30; i++) {
+      await page.keyboard.press('Tab')
+      const target = await page.evaluate(() => ({ label: document.activeElement?.getAttribute('aria-label'), cancel: !!document.activeElement?.closest('.confirm-sheet') && document.activeElement?.textContent === 'Cancel' }))
+      if (target.label === 'Close Gamma') { await page.keyboard.press('Space'); break }
+      if (target.cancel) break
+    }
+    v = await snapshot('native background close attempt')
+    check(v.state.confirming === 'Close Beta?', 'background close cannot replace Beta sheet')
+    check(v.trace.filter((e) => e.kind === 'close-call').length === 1, 'only the original close is pending')
+    check(v.outcomes.length === 0, 'original close remains pending until answered')
+    await page.keyboard.press('Escape')
+    v = await snapshot('Escape cancels original request')
+    check(v.state.confirming === null && v.state.ids.join() === 'a,b,c', 'Escape cancels without removing a workspace')
+    check(v.outcomes.length === 1 && v.outcomes[0].id === 'b' && v.outcomes[0].status === 'fulfilled', 'Escape settles the original Beta promise')
+    if (await focusClose('Beta')) await page.keyboard.press('Space')
+    v = await snapshot('Beta retry opens a new sheet')
+    check(v.state.confirming === 'Close Beta?', 'cancel releases ownership for Beta retry')
+    if (v.state.confirming === 'Close Beta?') await page.keyboard.press('Enter')
+    v = await snapshot('Enter confirms Beta retry')
+    check(v.state.ids.join() === 'a,c' && v.state.active === 'a' && v.state.confirming === null, 'Enter removes only Beta and preserves selection')
+    check(v.outcomes.filter((o) => o.id === 'b' && o.status === 'fulfilled').length === 2, 'both Beta close promises settle')
+    check(v.trace.filter((e) => e.kind === 'mock-fetch' && e.method === 'DELETE').map((e) => e.url).join() === '/api/pty/synthetic-agent', 'only Beta agent is killed')
+    if (await focusClose('Gamma')) await page.keyboard.press('Space')
+    v = await snapshot('Gamma remains operable after Beta settlement')
+    check(v.state.confirming === 'Close Gamma?', 'other live workspace can close after settlement')
+    await page.keyboard.press('Escape')
+    v = await snapshot('Gamma cancellation settles')
+    check(v.outcomes.some((o) => o.id === 'c' && o.status === 'fulfilled'), 'Gamma cancellation settles its promise')
+    return { failures, checkpoints }
+  })
+  console.log(JSON.stringify(result))
+  assert.deepEqual(result.failures, [])
+})
+
 // Catches undersized/hover-shifting close targets and close-origin dblclick
 // retargeting after removal, while preserving deliberate label/keyboard input.
 test('workspace close targets stay stable and own rapid gestures', async () => {

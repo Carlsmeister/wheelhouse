@@ -62,6 +62,7 @@ import { MemoryCard, MemoryModal } from './MemoryModal'
 import { SettingsModal } from './Panels'
 import { themed } from '../theme'
 import { consoleUnder } from '../layout'
+import { digits, zoomTarget } from '../zoom'
 import { UsagePanel } from './UsagePanel'
 
 // A card from a studio shows a plain panel for the moment its code takes to arrive.
@@ -631,12 +632,39 @@ function TodoMenu({ onClose }: { onClose: () => void }) {
 function Zoom() {
   const { zoom } = useViewport()
   const flow = useReactFlow()
+  // The percentage the field opened with; null while it is closed.
+  const [opened, setOpened] = useState<number | null>(null)
+  const shown = Math.round(zoom * 100)
   return (
     <div className="pill zoom">
       <button className="icon-btn sm" title="Zoom out" onClick={() => flow.zoomOut({ duration: 200 })}>
         <Minus size={14} />
       </button>
-      <span title="Double-click for 100%" onDoubleClick={() => flow.zoomTo(1, { duration: 250 })}>{Math.round(zoom * 100)}%</span>
+      {opened === null ? (
+        <button className="level" title="Click to type a zoom level" onClick={() => setOpened(shown)}>
+          {shown}%
+        </button>
+      ) : (
+        <input
+          className="level"
+          autoFocus
+          defaultValue={opened}
+          type="text"
+          inputMode="numeric"
+          aria-label="Zoom level in percent"
+          onFocus={(e) => e.currentTarget.select()}
+          onChange={(e) => (e.currentTarget.value = digits(e.currentTarget.value))}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') e.currentTarget.value = ''
+            if (e.key === 'Enter' || e.key === 'Escape') e.currentTarget.blur()
+          }}
+          onBlur={(e) => {
+            const v = zoomTarget(e.currentTarget.value, opened)
+            if (v !== null) flow.zoomTo(v / 100, { duration: 200 })
+            setOpened(null)
+          }}
+        />
+      )}
       <button className="icon-btn sm" title="Zoom in" onClick={() => flow.zoomIn({ duration: 200 })}>
         <Plus size={14} />
       </button>

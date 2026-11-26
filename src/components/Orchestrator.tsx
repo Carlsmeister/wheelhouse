@@ -8,6 +8,7 @@ import { agentById } from '../../shared/agents.js'
 import { AgentIcon } from './icons'
 import { useDictation } from './BottomBar'
 import { Ring } from './MissionMap'
+import { groupColor } from '../palette'
 
 // The pill an agent shows in the orchestrator: shorter words than the Mission Map uses.
 const PILL: Record<string, string> = { idle: 'idle', working: 'running', needs: 'needs you', done: 'done', stopped: 'stopped', paused: 'paused' }
@@ -183,7 +184,7 @@ function OrchestratorNodeImpl({ id, selected, positionAbsoluteX, positionAbsolut
               {teams.map((t) => (
                 <div key={t.group.id} className="orch-team">
                   <div className="orch-team-head">
-                    <i style={{ background: t.group.data.color }} />
+                    <i style={{ background: groupColor(t.group.data.color) }} />
                     {t.group.data.label}
                     <span className="spacer" />
                     {done(t.members)}/{t.members.length}

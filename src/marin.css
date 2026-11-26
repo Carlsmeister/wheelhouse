@@ -1,0 +1,114 @@
+/* Wheelhouse's Marin look (issue #9), over upstream's styles.css: tokens first, then overrides by exact selector. */
+:root {
+  --bg: #0b111b; --panel: #121a27; --panel-2: #1a2434; --panel-3: #222e42;
+  --line: #243248; --line-2: #2e3f5a;
+  --text: #e6edf7; --text-2: #c3cfdf; --muted: #8d9cb0; --faint: #5f6e83; --ink: 230 237 247;
+  --accent: #5b9bff; --accent-rgb: 91 155 255; --accent-2: #7fe0ff; --on-accent: #0b111b;
+  --working: var(--accent); --idle: #8d9cb0; --needs: #f5b83d; --done: #3ecf8e;
+  --edge: #5a6a82; --grid: #1c2738; --term-bg: #0e1520; --chip-bg: #121a27;
+  --glass: rgb(18 26 39 / 0.58); --popover: rgb(22 31 46 / 0.84); --seg-on: rgb(230 237 247 / 0.16);
+  --rim: inset 0 0 0 1px rgb(230 237 247 / 0.1), inset 0 1px 0 rgb(255 255 255 / 0.07);
+  --shadow: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 16px 42px rgb(0 0 0 / 0.55);
+  --shadow-sm: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 6px 19px rgb(0 0 0 / 0.45);
+  --glow: 0 0 19px color-mix(in srgb, var(--accent) 65%, transparent);
+  --glow-soft: 0 0 19px color-mix(in srgb, var(--accent) 18%, transparent);
+  --pill-tint: 12%; --syn-heading: #5b9bff; --syn-prop: var(--text-2); --syn-meta: var(--muted);
+  --group-0: #ff7a6b; --group-1: #ffc04d; --group-2: #3dd6c6; --group-3: #5b9bff;
+  --group-4: #a57cff; --group-5: #ff77b4; --group-6: #6fdc7f; --group-7: #ff9d5c;
+}
+:root[data-theme='light'] {
+  --bg: #f2f5f9; --panel: #ffffff; --panel-2: #eaf0f6; --panel-3: #dfe7f0;
+  --line: #d8e0ea; --line-2: #c5d0dd;
+  --text: #14202e; --text-2: #2e3c4d; --muted: #5a6879; --faint: #7d8b9e; --ink: 20 32 46;
+  --accent: #2369e8; --accent-rgb: 35 105 232; --accent-2: #1fb6e8; --on-accent: #ffffff;
+  --working: var(--accent); --idle: #5a6879; --needs: #996000; --warn: #996000; --done: #0e7c4f;
+  --ok: #1a7d36; --danger: #ce2e1b;
+  --edge: #9aa8ba; --grid: #ced8e4; --term-bg: #ffffff; --chip-bg: #ffffff;
+  --glass: rgb(255 255 255 / 0.62); --popover: rgb(255 255 255 / 0.88); --seg-on: #ffffff;
+  --rim: inset 0 0 0 1px rgb(16 32 64 / 0.1), inset 0 1px 0 rgb(255 255 255 / 0.7);
+  --scrim: rgb(16 32 64 / 0.22);
+  --shadow: 0 1px 2px rgb(16 32 64 / 0.08), 0 13px 35px rgb(16 32 64 / 0.13);
+  --shadow-sm: 0 1px 2px rgb(16 32 64 / 0.08), 0 6px 16px rgb(16 32 64 / 0.09);
+  --pill-tint: 6%; --syn-heading: #2369e8; --syn-prop: var(--text-2); --syn-meta: var(--muted);
+  --group-0: #e8483d; --group-1: #d98a00; --group-2: #0fa596; --group-3: #2369e8;
+  --group-4: #7a47e6; --group-5: #e2428a; --group-6: #2fa84a; --group-7: #ea6f1e;
+}
+
+/* Text on an accent fill: upstream writes #fff, which fails on dark Marin's light accent. */
+.tool-btn.active, .inspector .swatch.custom, .cal-cell .num.today, .git-commit, .ink-panel .swatch.custom,
+.round-btn.hot, .btn.primary, .pills button.on, .tool-btn .tool-badge, .check.on, .mini-seg button.on,
+.acct-row .use, .acct-connect .connect, .orch-connect.on, .orch-pick.on, .round-btn.go, .wire-pick.on span,
+.radial .petal:hover, .link-menu .menu-item.kind.on .ico, .docs-ask .send, .git-check.on { color: var(--on-accent); }
+.orch-pick.on small { color: color-mix(in srgb, var(--on-accent) 75%, transparent); }
+
+/* Opaque, so a pill's text sits on exactly what test/contrast.mjs measures, whatever is behind it. */
+.status-pill.working, .status-pill.needs, .status-pill.done, .pill-state.working {
+  background: color-mix(in srgb, currentColor var(--pill-tint), var(--panel));
+}
+
+/* The document sheet is white in both themes, so it takes light Marin's values; .paper.dark outranks these. */
+.paper a, .callout-label, .doc-card-label { color: #2369e8; }
+.paper code { background: #eaf0f6; color: #1b2a4a; }
+.paper blockquote.callout { border: 1px solid #d8e0ea; background: #f2f5f9; color: #14202e; }
+
+/* Shadow means it floats above the board. Chips, bars and pills already take --shadow and --shadow-sm. */
+.console { box-shadow: var(--shadow); }
+
+/* Gradient means the main thing to press; the soft top-down tint on frames and heads is its quiet form. */
+/* The orb is a lit sphere as upstream draws it, in Marin's blues: one radial gradient, so no hard edges. */
+.orb {
+  background: radial-gradient(circle at 38% 35%, #e4f8ff 0%, var(--accent-2) 30%, var(--accent) 65%, #2c44b0 100%);
+}
+/* The command bar's and the orchestrator's orb turn slowly: a soft colour layer turns inside, under light and a rim that stay put. */
+.commandbar .orb, .orch .orb { position: relative; overflow: hidden; }
+.commandbar .orb::before, .orch .orb::before, .commandbar .orb::after, .orch .orb::after { content: ''; position: absolute; inset: 0; border-radius: 50%; }
+.commandbar .orb::before, .orch .orb::before {
+  background: radial-gradient(circle at 22% 78%, color-mix(in srgb, var(--accent-2) 75%, transparent), transparent 50%),
+    radial-gradient(circle at 80% 26%, color-mix(in srgb, #5a64f0 50%, transparent), transparent 48%);
+  animation: spin 12s linear infinite;
+}
+.commandbar .orb::after, .orch .orb::after {
+  background: radial-gradient(circle at 38% 35%, rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.2) 18%, transparent 40%),
+    radial-gradient(circle, transparent 60%, rgb(16 32 90 / 0.35));
+}
+/* The send button takes the gradient once the field holds something to send; empty, it keeps upstream's grey. */
+.commandbar:has(input:not(:placeholder-shown)) .send, .tool-btn.active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--on-accent); }
+.commandbar:has(input:not(:placeholder-shown)) .send:hover { filter: brightness(1.08); }
+.group-node {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--g) 16%, transparent), color-mix(in srgb, var(--g) 2%, transparent) 70%);
+}
+.console-head, .commandbar { background: linear-gradient(180deg, var(--panel-2), var(--panel)); }
+
+/* Glow means active now: the selected tool, the command bar's and the orchestrator's orb (softly, as upstream), and the working card below. */
+.tool-btn.active { box-shadow: var(--glow); }
+.commandbar .orb, .orch .orb { box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 36%, transparent); }
+.git-commit, .btn.primary { box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.22); }
+.wt-ports button.on i { box-shadow: none; }
+.command-pulse { filter: none; }
+
+/* Pulse means work in progress. console-in stays first: dropping it would replay the entrance whenever work stops. */
+.console.working {
+  --ring: 0 0 #0000;
+  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  box-shadow: var(--ring), var(--shadow), var(--glow-soft);
+  animation: console-in 0.26s var(--spring) both, marin-breathe 2.6s ease-in-out infinite;
+}
+/* Upstream's selected rule outranks .console.working; --ring carries the selection ring through the keyframes. */
+.react-flow__node.selected .console.working {
+  --ring: 0 0 0 1px var(--accent);
+  box-shadow: var(--ring), var(--shadow), var(--glow-soft);
+}
+@keyframes marin-breathe {
+  0%, 100% { box-shadow: var(--ring), var(--shadow), var(--glow-soft); }
+  50% { box-shadow: var(--ring), var(--shadow), 0 0 48px color-mix(in srgb, var(--accent) 48%, transparent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .console.working, .commandbar .orb::before, .orch .orb::before, .status-pill.working .dot { animation: none; }
+}
+
+/* On a primary button an agent mark (an <img>) takes its one-colour form in the button's --on-accent: near-black dark, white light.
+   Codex is exempt: its mark is a full white tile, which the filter would turn into a solid square.
+   Claude is exempt too, and the selected tool is not filtered at all: Claude's mark keeps its own orange on the blue fill. */
+.btn.primary img:not([data-agent='codex']):not([data-agent='claude']) { filter: brightness(0); }
+:root[data-theme='light'] .btn.primary img:not([data-agent='codex']):not([data-agent='claude']) { filter: brightness(0) invert(1); }

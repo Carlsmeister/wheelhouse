@@ -104,7 +104,7 @@ function createWindow() {
     minWidth: 900,
     minHeight: 600,
     title: 'Wheelhouse',
-    backgroundColor: nativeTheme.shouldUseDarkColors ? '#0a0908' : '#f5f1ea',
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#0b111b' : '#f2f5f9',
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: { x: 16, y: 18 },
     show: !process.env.WHEELHOUSE_DESKTOP_HIDDEN, // tests drive a hidden window over CDP

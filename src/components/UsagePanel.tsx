@@ -441,7 +441,7 @@ function TokensView({ close }: { close: () => void }) {
       <div className="usage-body">
         {!tokens ? (
           <div className="usage-loading">
-            <ClaudeMark size={20} color="#8a847c" />
+            <ClaudeMark size={20} />
             <div className="t">Reading local session logs</div>
             <div className="s">Counting tokens straight from each agent's own transcripts on this Mac — nothing leaves your machine.</div>
           </div>

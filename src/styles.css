@@ -5248,12 +5248,21 @@ textarea.field {
   left: 0;
   width: 300px;
   max-height: 420px;
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
   z-index: 45;
 }
 .branch-menu .menu-item {
   gap: 8px;
   font-size: 13px;
+}
+/* Only the branch list scrolls, so the New branch title, chips and form stay in view however many branches there are. */
+.branch-list {
+  overflow: auto;
+  min-height: 0;
+}
+.branch-foot {
+  flex: none;
 }
 .branch-kinds {
   display: flex;

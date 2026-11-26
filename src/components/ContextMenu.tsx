@@ -49,6 +49,7 @@ import { Composer } from './BottomBar'
 import { NEW_BOARD } from './Planner'
 import { newSticky, SHAPE_DEFAULTS } from './Shapes'
 import { newWebData } from './WebTile'
+import { groupColor } from '../palette'
 
 type Point = { x: number; y: number }
 // Where the menu opened: on screen (for the menu) and on the board (for what it places).
@@ -378,7 +379,7 @@ function NodeMenu({ at, node, onClose }: { at: MenuAt; node: Node; onClose: () =
         <div className="ctx-list">
           {groups.map((g) => (
             <button key={g.id} disabled={node.parentId === g.id} onClick={run(() => s.moveToGroup(node.id, g.id))}>
-              <LayoutGrid size={15} color={g.data.color} /> {g.data.label}
+              <LayoutGrid size={15} style={{ color: groupColor(g.data.color) }} /> {g.data.label}
               <small>{consoles(ws.nodes).filter((n) => n.parentId === g.id).length}</small>
             </button>
           ))}
@@ -418,7 +419,7 @@ function NodeMenu({ at, node, onClose }: { at: MenuAt; node: Node; onClose: () =
       <Panel at={at} title="Colour" onBack={() => setSub(null)} width={240}>
         <div className="ctx-swatches">
           {GROUP_COLORS.map((c) => (
-            <button key={c} style={{ background: c }} onClick={run(() => s.updateData(node.id, { color: c }))} />
+            <button key={c} style={{ background: groupColor(c) }} onClick={run(() => s.updateData(node.id, { color: c }))} />
           ))}
         </div>
       </Panel>
@@ -454,7 +455,7 @@ function NodeMenu({ at, node, onClose }: { at: MenuAt; node: Node; onClose: () =
       : node.type === 'group'
         ? [
             ['Rename', <Pencil size={15} />, () => setSub('rename'), true],
-            ['Colour', <span className="ctx-dot" style={{ background: (node.data as GroupData).color }} />, () => setSub('colour'), true],
+            ['Colour', <span className="ctx-dot" style={{ background: groupColor((node.data as GroupData).color) }} />, () => setSub('colour'), true],
             ['Add an agent', <Plus size={15} />, () => setSub('agents'), true],
             ['Frame it', <Crosshair size={15} />, run(() => s.frame([node.id])), false, 'Zoom the board onto this group'],
             ['Connect to an orchestrator', <Orbit size={15} />, () => setSub('orchs'), true, 'Let an orchestrator give this group orders'],

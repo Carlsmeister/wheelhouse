@@ -1,4 +1,4 @@
-import { marked } from 'marked'
+import { marked, Renderer } from 'marked'
 import DOMPurify from 'dompurify'
 
 // Links in a rendered note open outside the board instead of replacing it.
@@ -9,10 +9,18 @@ DOMPurify.addHook('afterSanitizeAttributes', (node) => {
   }
 })
 
+// Task state remains readable without rendering an interactive form control.
+const renderer = new Renderer()
+renderer.checkbox = ({ checked }) => checked ? '[x] ' : '[ ] '
+
 // Markdown from a repo or a CLI is untrusted and this page drives terminals: it always goes through DOMPurify.
 // "> [!NOTE]" blockquotes (GitHub's callout syntax) become labelled callouts.
 export function renderMarkdown(md: string) {
-  const html = DOMPurify.sanitize(marked.parse(md, { gfm: true, async: false }), { ADD_ATTR: ['target'] })
+  const html = DOMPurify.sanitize(marked.parse(md, { gfm: true, async: false, renderer }), {
+    ADD_ATTR: ['target'],
+    FORBID_TAGS: ['form', 'input', 'button', 'textarea', 'select', 'option', 'optgroup', 'fieldset', 'legend', 'datalist', 'output', 'style'],
+    FORBID_ATTR: ['style'],
+  })
   return html.replace(/<blockquote>\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*/g, (_, k: string) => `<blockquote class="callout ${k.toLowerCase()}"><p><span class="callout-label">${k}</span>`)
 }
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Briefcase, ChevronDown, ChevronLeft, Folder, FolderOpen, Info, Plus, Settings, X } from 'lucide-react'
 import { consoles, project, useStore } from '../store'
 import { ClaudeMark } from './icons'
@@ -14,10 +14,12 @@ export function TopBar() {
   const p = useStore(project)!
   const projects = useStore((s) => s.projects)
   const live = useStore((s) => Object.keys(s.live).length)
+  const confirming = useStore((s) => !!s.confirming)
   const hasClaude = useStore((s) => s.installed.includes('claude'))
   const s = useStore.getState()
   const [projMenu, setProjMenu] = useState(false)
   const [renaming, setRenaming] = useState<string | null>(null)
+  const closeGesture = useRef(false)
   const resets = useUsage((u) => u.limits?.limits[0]?.resets?.replace(/\s*\(.*\)$/, ''))
   const today = useUsage((u) => {
     const d = u.tokens?.claude.days[todayKey()]
@@ -56,13 +58,27 @@ export function TopBar() {
         <button className="project" title="Switch project" onClick={() => setProjMenu((v) => !v)}>
           <Folder size={15} fill="currentColor" strokeWidth={1.5} /> {p.name} <ChevronDown size={14} color="var(--muted)" />
         </button>
-        <div className="tab-list">
+        <div className="tab-list"
+          onMouseDownCapture={(e) => {
+            if (e.detail === 1) closeGesture.current = e.target instanceof Element && !!e.target.closest('button.x')
+          }}
+          onClickCapture={(e) => {
+            if (closeGesture.current && e.detail > 1) {
+              e.preventDefault()
+              e.stopPropagation()
+            }
+          }}
+          onDoubleClickCapture={(e) => {
+            if (closeGesture.current) {
+              e.preventDefault()
+              e.stopPropagation()
+            }
+          }}
+        >
         {p.workspaces.map((w) => (
-          <button
+          <div
             key={w.id}
             className={`tab ${w.id === p.activeWs ? 'active' : ''}`}
-            onClick={() => s.switchWorkspace(w.id)}
-            onDoubleClick={() => setRenaming(w.id)}
           >
             {renaming === w.id ? (
               <input
@@ -75,20 +91,29 @@ export function TopBar() {
                 onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
               />
             ) : (
-              w.name
+              <button type="button" className="tab-label"
+                onClick={() => s.switchWorkspace(w.id)}
+                onDoubleClick={() => setRenaming(w.id)}
+              >
+                {w.name}
+                <span className="count">{consoles(w.nodes).length}</span>
+              </button>
             )}
-            <span className="count">{consoles(w.nodes).length}</span>
-            <span
+            <button
+              type="button"
               className="x"
+              aria-label={`Close ${w.name}`}
               title="Close this workspace"
+              disabled={confirming}
+              onDoubleClick={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.stopPropagation()
                 s.closeWorkspace(w.id)
               }}
             >
               <X size={13} />
-            </span>
-          </button>
+            </button>
+          </div>
         ))}
         </div>
         <button className="icon-btn" title="New workspace" onClick={s.addWorkspace}>

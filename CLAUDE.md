@@ -27,3 +27,14 @@ Browser tests fail explicitly when Chromium is missing.
 - **One run at a time.** The suite starts its own server on port 4399
   (`test/server.test.mjs:16`), so two runs at once collide. The full suite takes about
   75 seconds.
+- **Workspace UI regressions run explicitly.** The normal suite's `test/*.test.mjs`
+  glob excludes `test/ui`. Use `node --test test/ui/workspace-tabs.test.mjs` and
+  `node --test test/ui/workspace-close-store.test.mjs`, sequentially after building.
+  These require an installed `playwright-cli` (verified with 0.1.24) and its browser.
+  Set `PLAYWRIGHT_CLI_JS` to that CLI's JavaScript entry and optionally
+  `PLAYWRIGHT_NODE` to the Node 24 executable; the default is the runner's executable.
+  Run both the test and CLI with Node 24, with `NODE_ENV` and `PORT` unset. The driver
+  reports both runtimes, opens a fresh named session and closes only its own browser
+  and loopback fixture. The fixture uses synthetic state and mocked transport; it
+  never starts the application backend or reads a saved board. Missing prerequisites
+  and browser failures fail the tests.

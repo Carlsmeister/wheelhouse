@@ -373,6 +373,7 @@ function waitGone(id: string, ms = 5000) {
 }
 
 export const useStore = create<S>((set, get) => {
+  const closingWorkspaces = new Set<string>()
   const updateWs = (fn: (ws: Workspace) => Workspace) =>
     set((s) => ({
       projects: s.projects.map((p) => (p.path !== s.active ? p : { ...p, workspaces: p.workspaces.map((w) => (w.id === p.activeWs ? fn(w) : w)) })),
@@ -553,15 +554,32 @@ export const useStore = create<S>((set, get) => {
 
     closeWorkspace: async (id) => {
       const p = project(get())
-      if (!p || p.workspaces.length === 1) return get().notify('A project keeps at least one workspace')
-      const ws = p.workspaces.find((w) => w.id === id)!
-      const ids = consoles(ws.nodes).map((n) => n.id).filter((cid) => get().live[cid])
-      if (ids.length && !(await askToConfirm(`Close ${ws.name}?`, `${ids.length} running agent${ids.length > 1 ? 's' : ''} will stop.`, 'Close workspace'))) return
-      await Promise.all(ids.map((cid) => api.kill(cid).catch(() => {})))
-      updateProject((pr) => {
-        const workspaces = pr.workspaces.filter((w) => w.id !== id)
-        return { ...pr, workspaces, activeWs: pr.activeWs === id ? workspaces[0].id : pr.activeWs }
-      })
+      const ws = p?.workspaces.find((w) => w.id === id)
+      if (!p || !ws) return
+      const key = JSON.stringify([p.path, id])
+      if (closingWorkspaces.has(key)) return
+      closingWorkspaces.add(key)
+      try {
+        if (p.workspaces.length === 1) return get().notify('A project keeps at least one workspace')
+        const ids = consoles(ws.nodes).map((n) => n.id).filter((cid) => get().live[cid])
+        if (ids.length && !(await askToConfirm(`Close ${ws.name}?`, `${ids.length} running agent${ids.length > 1 ? 's' : ''} will stop.`, 'Close workspace'))) return
+        const current = get().projects.find((pr) => pr.path === p.path)
+        if (!current?.workspaces.some((w) => w.id === id)) return
+        if (current.workspaces.length === 1) return get().notify('A project keeps at least one workspace')
+        await Promise.all(ids.map((cid) => api.kill(cid).catch(() => {})))
+        let refused = false
+        set((s) => ({
+          projects: s.projects.map((pr) => {
+            if (pr.path !== p.path || !pr.workspaces.some((w) => w.id === id)) return pr
+            const workspaces = pr.workspaces.filter((w) => w.id !== id)
+            if (!workspaces.length) { refused = true; return pr }
+            return { ...pr, workspaces, activeWs: pr.activeWs === id ? workspaces[0].id : pr.activeWs }
+          }),
+        }))
+        if (refused) get().notify('A project keeps at least one workspace')
+      } finally {
+        closingWorkspaces.delete(key)
+      }
     },
 
     renameWorkspace: (id, name) => updateProject((p) => ({ ...p, workspaces: p.workspaces.map((w) => (w.id === id ? { ...w, name } : w)) })),

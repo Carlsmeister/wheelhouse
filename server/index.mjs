@@ -27,6 +27,7 @@ import { createDocs } from './docs.mjs'
 import { createDiagrams } from './diagrams.mjs'
 import * as files from './files.mjs'
 import { approved, linkMessage, matches } from '../shared/links.js'
+import { applicationCsp } from '../shared/content-security.js'
 
 const PORT = Number(process.env.PORT) || 4318
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
@@ -842,17 +843,7 @@ function serveStatic(url, res) {
 const ACTS = new Set(['input', 'choose', 'stop', 'signal'])
 // The app's own page runs only its own scripts: markdown and agent output stay text even if
 // something got past DOMPurify. Web tiles may show any page.
-const CSP = [
-  "default-src 'self'",
-  "script-src 'self'",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src * data: blob:",
-  "font-src 'self' data:",
-  `connect-src 'self' ws://127.0.0.1:${PORT} ws://localhost:${PORT}`,
-  'frame-src http: https:',
-  "object-src 'none'",
-  "base-uri 'none'",
-].join('; ')
+const CSP = applicationCsp(PORT)
 const server = http.createServer(async (req, res) => {
   if (!isAllowed(req, /^\/(api|mcp)\//.test(req.url ?? ''))) return json(res, 403, { error: 'forbidden' })
   // Everything below runs inside the try: a malformed URL from any page (`/%`, `//`) must cost

@@ -28,6 +28,7 @@ import { createDiagrams } from './diagrams.mjs'
 import * as files from './files.mjs'
 import { approved, linkMessage, matches } from '../shared/links.js'
 import { applicationCsp } from '../shared/content-security.js'
+import { isJsonMediaType } from './json-media.mjs'
 
 const PORT = Number(process.env.PORT) || 4318
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
@@ -851,6 +852,9 @@ const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, 'http://x')
     const parts = url.pathname.split('/').filter(Boolean) // ['api', ...]
+    if (req.method === 'POST' && (parts[0] === 'api' || parts[0] === 'mcp') && !isJsonMediaType(req.headers['content-type'])) {
+      return json(res, 415, { error: 'application/json required' })
+    }
     // A lead's team tools (MCP over plain JSON replies: no event stream, so GET is refused).
     if (parts[0] === 'mcp' && parts[1]) {
       if (req.method !== 'POST') return json(res, 405, { error: 'POST only' })

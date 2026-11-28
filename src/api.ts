@@ -17,6 +17,7 @@ async function reach(url: string, init: RequestInit) {
 }
 
 async function call<T>(method: string, url: string, body?: unknown): Promise<T> {
+  if (method === 'POST' && body === undefined) body = {}
   const res = await reach(url, {
     method,
     headers: body === undefined ? undefined : { 'content-type': 'application/json' },

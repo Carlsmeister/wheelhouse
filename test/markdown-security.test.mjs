@@ -3,15 +3,30 @@ import assert from 'node:assert/strict'
 import { createServer } from 'vite'
 import { chromium } from 'playwright'
 import { fileURLToPath } from 'node:url'
+import { mkdtemp, rm } from 'node:fs/promises'
+import { join, relative, sep } from 'node:path'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
-let server, browser, context, page
+let server, browser, context, page, cacheDir
 const unexpectedRequests = []
+
+async function closeFixture() {
+  try { await context?.close() }
+  finally {
+    try { await browser?.close() }
+    finally {
+      try { await server?.close() }
+      finally { if (cacheDir) await rm(cacheDir, { recursive: true, force: true }) }
+    }
+  }
+}
 
 before(async () => {
   try {
+    cacheDir = await mkdtemp(join(root, 'node_modules/.vite-markdown-security-'))
+    const optimizedPrefix = `/${relative(root, cacheDir).split(sep).join('/')}/deps/`
     // This isolated renderer fixture does not exercise application CSP delivery.
-    server = await createServer({ root, configFile: false, server: { host: '127.0.0.1', port: 0 }, logLevel: 'error' })
+    server = await createServer({ root, cacheDir, configFile: false, server: { host: '127.0.0.1', port: 0 }, logLevel: 'error' })
     await server.listen()
     const origin = `http://127.0.0.1:${server.httpServer.address().port}`
     browser = await chromium.launch({ headless: true })
@@ -22,7 +37,7 @@ before(async () => {
         '/test/fixtures/markdown-security/', '/test/fixtures/markdown-security/index.html',
         '/test/fixtures/markdown-security/main.ts', '/src/markdown.ts',
         '/@vite/client', '/node_modules/vite/dist/client/env.mjs',
-      ].includes(url.pathname) || /^\/node_modules\/\.vite\/deps\/(marked|dompurify|chunk-[\w-]+)\.js$/.test(url.pathname)
+      ].includes(url.pathname) || (url.pathname.startsWith(optimizedPrefix) && /^(marked|dompurify|chunk-[\w-]+)\.js$/.test(url.pathname.slice(optimizedPrefix.length)))
       if (request.method() === 'GET' && url.origin === origin && allowed) return route.continue()
       unexpectedRequests.push({ url: request.url(), method: request.method(), type: request.resourceType() })
       return route.abort('blockedbyclient')
@@ -31,12 +46,12 @@ before(async () => {
     await page.goto(origin + '/test/fixtures/markdown-security/')
     await page.waitForFunction(() => !!window.markdownFixture)
   } catch (error) {
-    await context?.close(); await browser?.close(); await server?.close()
+    await closeFixture()
     throw error
   }
 })
 after(async () => {
-  await context?.close(); await browser?.close(); await server?.close()
+  await closeFixture()
   assert.deepEqual(unexpectedRequests, [], 'renderer fixture made unexpected requests')
 })
 

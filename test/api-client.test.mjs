@@ -3,13 +3,17 @@ import assert from 'node:assert/strict'
 import { createServer } from 'vite'
 import { chromium } from 'playwright'
 import { fileURLToPath } from 'node:url'
+import { mkdtemp, rm } from 'node:fs/promises'
+import path from 'node:path'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
-let server, browser, context, page
+let server, browser, context, page, cacheDir
 const captured = [], unexpected = []
 
 before(async () => {
-  server = await createServer({ root, configFile: false, server: { host: '127.0.0.1', port: 0 }, logLevel: 'error' })
+  cacheDir = await mkdtemp(path.join(root, 'node_modules', '.vite-api-client-'))
+  const optimizedPrefix = `/${path.relative(root, cacheDir).split(path.sep).join('/')}/deps/`
+  server = await createServer({ root, cacheDir, configFile: false, server: { host: '127.0.0.1', port: 0 }, logLevel: 'error' })
   await server.listen()
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`
   browser = await chromium.launch({ headless: true })
@@ -20,8 +24,9 @@ before(async () => {
       captured.push({ method: request.method(), url: url.pathname, media: request.headers()['content-type'] ?? null, body: request.postData() })
       return route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' })
     }
-    const allowed = ['/test/fixtures/markdown-security/', '/test/fixtures/markdown-security/main.ts', '/src/markdown.ts', '/src/api.ts', '/@vite/client', '/node_modules/vite/dist/client/env.mjs'].includes(url.pathname)
-      || /^\/node_modules\/\.vite\/deps\/(marked|dompurify|chunk-[\w-]+)\.js$/.test(url.pathname)
+    const optimizedModule = url.pathname.startsWith(optimizedPrefix)
+      && /^(marked|dompurify|chunk-[\w-]+)\.js$/.test(url.pathname.slice(optimizedPrefix.length))
+    const allowed = ['/test/fixtures/markdown-security/', '/test/fixtures/markdown-security/main.ts', '/src/markdown.ts', '/src/api.ts', '/@vite/client', '/node_modules/vite/dist/client/env.mjs'].includes(url.pathname) || optimizedModule
     if (url.origin === origin && request.method() === 'GET' && allowed) return route.continue()
     unexpected.push(request.url())
     return route.abort('blockedbyclient')
@@ -38,7 +43,11 @@ before(async () => {
 })
 
 after(async () => {
-  await context?.close(); await browser?.close(); await server?.close()
+  try { await context?.close(); await browser?.close() }
+  finally {
+    try { await server?.close() }
+    finally { if (cacheDir) await rm(cacheDir, { recursive: true, force: true }) }
+  }
   assert.deepEqual(unexpected, [], 'client fixture made unexpected requests')
 })
 
